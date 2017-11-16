@@ -7,6 +7,14 @@
         color: white;
     }
 
+    .lime {
+        background-color: lime;
+    }
+
+    .hotPink {
+        background-color: hotpink;
+    }
+
     svg {
         font: 10px sans-serif;
     }
@@ -22,6 +30,16 @@
         fill: none;
         stroke: lime;
         /*stroke: hotpink;*/
+    }
+
+    .foreground .hotPinkPath {
+        fill: none;
+        stroke: hotpink;
+    }
+
+    .foreground .limePath {
+        fill: none;
+        stroke: lime;
     }
 
     .brush .extent {
@@ -47,6 +65,25 @@
 
 </style>
 <body>
+    <div id="dropContainer" style="border:1px solid black;height:100px;">
+        Drop Here
+    </div>
+    <input type="file" id="fileInput" />
+    <button id="addFile">Ajouter</button>
+    <div id="graphSpace">
+
+    </div>
+    <table id="listFiles">
+        <thead>
+        <tr>
+            <th>Nom du fichier </th>
+            <th>Nombre de lignes </th>
+            <th>Couleur </th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 <script src="//d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -54,8 +91,7 @@
         width = 1000 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
-
-    function createPC(data) {
+    function fillPC(data) {
         var x = d3.scaleBand().rangeRound([0, width]).padding(1),
             y = {},
             dragging = {};
@@ -66,12 +102,11 @@
             foreground;
 
 
-        var svg = d3.select("body").append("svg")
+        var svg = d3.select("#graphSpace").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
         // Extract the list of dimensions and create a scale for each.
         x.domain(dimensions = d3.keys(data[0]).filter(function (d) {
@@ -99,8 +134,16 @@
             .selectAll("path")
             .data(data)
             .enter().append("path")
+            .attr("class", function(d, i) {
+                var index = limits.findIndex(function(x) {
+                    return x > i;
+                });
+//                console.log(i, index, limits[index], colorClasses[index - 1]);
+                // TODO Faire un modulo pour rester dans le tableau
+                // attention au mod en js
+                return colorClassesPath[index - 1];
+            })
             .attr("d", path);
-
         //console.log(dimensions);
 
         // Add a group element for each dimension.
@@ -168,7 +211,6 @@
             .attr("x", -8)
             .attr("width", 16);
 
-
         function position(d) {
             var v = dragging[d];
             return v == null ? x(d) : v;
@@ -206,11 +248,101 @@
                 }) ? null : "none";
             });
         }
+    }
+
+
+    var files = [];
+    var idxFile = 0;
+    var dataAll = [];
+    // TODO refaire propre avec objets au lieu de 2 tableaux
+    var colorClassesPath = [
+        "limePath",
+        "hotPinkPath"
+    ];
+    var colorClasses = [
+        "lime",
+        "hotPink"
+    ];
+    var limits = [0];
+
+    var dropContainer = document.getElementById("dropContainer");
+    var fileInput = document.getElementById("fileInput");
+    var btnAddFile = document.getElementById("addFile");
+
+    dropContainer.ondragover = dropContainer.ondragenter = function(evt) {
+        evt.preventDefault();
     };
 
+    dropContainer.ondrop = function(evt) {
+        // pretty simple -- but not for IE :(
+        fileInput.files = evt.dataTransfer.files;
+        evt.preventDefault();
+    };
 
-    d3.csv("cars_3.csv", function (error, data) {
-        createPC(data)
-    });
+    btnAddFile.addEventListener("pointerdown", addFile, false);
+
+    var listFilesBody = document.querySelector("#listFiles tbody")
+
+    function addFile(e) {
+        console.log("added !");
+        console.log("Length of file input : " + fileInput.files.length);
+
+        // Parcourir les fichiers en input avec boucle
+        var fin = idxFile + fileInput.files.length;
+        for(var i = 0, len = fileInput.files.length ; i < len ; i++) {
+            var file = fileInput.files[i];
+//            console.log(file);
+            var reader = new FileReader();
+
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    d3.csv(e.target.result, function (error, data) {
+//                        fillPC(data);
+                        // TODO Faire plus rapidement avec une propriété supp sur les points
+                        // a exclure lors de la construction des axes
+                        // uniquement pour le styling
+                        // Un peu dégeux
+                        limits.push(limits[limits.length-1] + data.length);
+                        dataAll = dataAll.concat(data);
+                        var info = {
+                            'name': theFile.name,
+                            'nbLines': data.length,
+                            'data': e.target.result,
+                            'index': idxFile
+                        };
+                        files.push(info);
+                        addRowToList(info);
+                        idxFile++;
+                        // TODO On peut pas faire à la sortie du for car
+                        // asynchrone, voir plus propre avec promesses.
+                        if(idxFile === fin) {
+                            // Eviter de clear all et de redessiner
+                            document.getElementById("graphSpace").innerHTML = "";
+                            console.log(dataAll);
+                            fillPC(dataAll);
+                        }
+                    });
+                };
+            })(file);
+            reader.readAsDataURL(file);
+        }
+    }
+
+
+
+    function addRowToList(info) {
+        // TODO Rajouter des class sur les colonnes
+        const tr = document.createElement("tr");
+        const tdName = document.createElement("td");
+        tdName.innerHTML = info.name;
+        const tdNbLines = document.createElement("td");
+        tdNbLines.innerHTML = info.nbLines;
+        const tdColor = document.createElement("td");
+        tdColor.classList.add(colorClasses[info.index]);
+        tr.appendChild(tdName);
+        tr.appendChild(tdNbLines);
+        tr.appendChild(tdColor);
+        listFilesBody.appendChild(tr)
+    }
 
 </script>
