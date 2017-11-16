@@ -95,10 +95,10 @@ function start() {
 // Handles a brush event, toggling the display of foreground lines.
 function brush() {
     var actives = dimensions.filter(function (p) {
-            console.log(d3.event.selection.map(y[p]));
             return d3.event.selection.map(y[p]);
         }),
         extents = actives.map(function (p) {
+            console.log(y[p].brush.extent());
             return y[p].brush.extent();
         });
     foreground.style("display", function (d) {
