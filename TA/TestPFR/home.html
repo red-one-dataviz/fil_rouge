@@ -7,6 +7,7 @@
         background: #202020;
         color: white;
     }
+
     body {
         margin: 10px;
         text-align: center;
@@ -16,17 +17,24 @@
     .fileUpload {
         position: relative;
         overflow: hidden;
-        margin: 10px;
+        /*margin: 10px;*/
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 10px;
         background-color: #BDBDBD;
         height: 200px;
         width: 200px;
         text-align: center;
     }
+
     .fileUpload input.upload {
         position: absolute;
         top: 0;
         right: 0;
-        margin: 0;
+        /*margin: 0;*/
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 10px;
         padding: 0;
         font-size: 20px;
         cursor: pointer;
@@ -35,9 +43,26 @@
         height: 100%;
         text-align: center;
     }
-    .custom-span{ font-family: Arial; font-weight: bold;font-size: 100px; color: #FE57A1}
-    #uploadFile{border: none;margin-left: 10px; width: 200px;}
-    .custom-para{font-family: arial;font-weight: bold;font-size: 24px; color:#585858;}
+
+    .custom-span {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 100px;
+        color: #FE57A1
+    }
+
+    #uploadFile {
+        border: none;
+        margin-left: 10px;
+        width: 200px;
+    }
+
+    .custom-para {
+        font-family: arial;
+        font-weight: bold;
+        font-size: 24px;
+        color: #585858;
+    }
 
     /* ENF FILE INPUT **/
 
@@ -214,15 +239,15 @@
 <div class="fileUpload">
     <span class="custom-span">+</span>
     <p class="custom-para">Ajouter un fichier</p>
-    <input id="uploadBtn" type="file" class="upload" />
+    <input id="uploadBtn" type="file" class="upload"/>
     <div id="dropContainer"></div>
 </div>
-<input id="uploadFile" placeholder="0 files selected" disabled="disabled" />
+<input id="uploadFile" placeholder="0 files selected" disabled="disabled" style="border:1px solid black;margin-left:auto;margin-right:auto;margin-bottom:10px;height:20px;width:200px"/>
 
 <!-- END FANCY FILE INPUT -->
 
 <!--OLD BUTTON-->
-<!--<button id="addFile">Ajouter</button>...-->
+<!--<button id=" addFile">Ajouter</button>...-->
 
 <!-- FANCY BUTTON -->
 <div class="type-1">
