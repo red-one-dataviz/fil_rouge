@@ -7,19 +7,47 @@
         background: #202020;
         color: white;
     }
-
-    /** BUTTONS **/
     body {
         margin: 10px;
         text-align: center;
     }
 
+    /** FILE INPUT **/
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+        margin: 10px;
+        background-color: #BDBDBD;
+        height: 200px;
+        width: 200px;
+        text-align: center;
+    }
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        filter: alpha(opacity=0);
+        height: 100%;
+        text-align: center;
+    }
+    .custom-span{ font-family: Arial; font-weight: bold;font-size: 100px; color: #FE57A1}
+    #uploadFile{border: none;margin-left: 10px; width: 200px;}
+    .custom-para{font-family: arial;font-weight: bold;font-size: 24px; color:#585858;}
+
+    /* ENF FILE INPUT **/
+
+    /** BUTTONS **/
     .btn-1 {
-        background-color: #F27935;
+        background-color: #FE57A1;
     }
 
     .btn-1 .round {
-        background-color: #f59965;
+        background-color: #FE89bd;
     }
 
     .btn {
@@ -174,10 +202,23 @@
 
 </style>
 <body>
-<div id="dropContainer" style="border:1px solid black;height:100px;">
+
+<!-- OLD FILE INPUT -->
+<!-- <div id="dropContainer" style="border:1px solid black;height:100px;">
     Drop Here
+</div>-->
+
+<!-- <input type="file" id="fileInput"/> -->
+
+<!-- FANCY FILE INPUT -->
+<div class="fileUpload">
+    <span class="custom-span">+</span>
+    <p class="custom-para">Ajouter un fichier</p>
+    <input id="uploadBtn" type="file" class="upload" />
 </div>
-<input type="file" id="fileInput"/>
+<input id="uploadFile" placeholder="0 files selected" disabled="disabled" />
+
+<!-- END FANCY FILE INPUT -->
 
 <!--OLD BUTTON-->
 <!--<button id="addFile">Ajouter</button>...-->
@@ -401,15 +442,19 @@
     var limits = [0];
 
     var dropContainer = document.getElementById("dropContainer");
-    var fileInput = document.getElementById("fileInput");
+    var uploadBtn = document.getElementById("uploadBtn");
+    var uploadFile = document.getElementById("uploadFile");
     var btnAddFile = document.getElementById("addFile");
 
     dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
         evt.preventDefault();
     };
 
+    uploadBtn.onchange = function () {
+        uploadFile.value = this.value;
+    };
+
     dropContainer.ondrop = function (evt) {
-        // pretty simple -- but not for IE :(
         fileInput.files = evt.dataTransfer.files;
         evt.preventDefault();
     };
@@ -421,12 +466,12 @@
 
     function addFile(e) {
         console.log("added !");
-        console.log("Length of file input : " + fileInput.files.length);
+        console.log("Length of file input : " + uploadBtn.files.length);
 
         // Parcourir les fichiers en input avec boucle
-        var fin = idxFile + fileInput.files.length;
-        for (var i = 0, len = fileInput.files.length; i < len; i++) {
-            var file = fileInput.files[i];
+        var fin = idxFile + uploadBtn.files.length;
+        for (var i = 0, len = uploadBtn.files.length; i < len; i++) {
+            var file = uploadBtn.files[i];
 //            console.log(file);
             var reader = new FileReader();
 
