@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>title</title>
+  </head>
+  <body>
+  	<h1> Yo </h1>
+    <button id="test">Test</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+      window.addEventListener("load", function() {
+        // Crée l'instance WebSocket
+        var mySocket = new WebSocket("ws://localhost:9000");
+        // Ecoute pour les messages arrivant
+        mySocket.onmessage = function (event) {
+            var output = document.getElementById("output");
+            // Message reçu
+            console.log("Reçu : " + event.data);
+        };
+        var testBtn = document.getElementById("test");
+        testBtn.addEventListener("click", function(e) {
+            mySocket.send("click");
+        })
+    });
+    </script>
+  </body>
+</html>
