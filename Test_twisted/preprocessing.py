@@ -17,6 +17,10 @@ def remove_categorical_var(df):
     return df_cleaned
 
 
+def get_df(json_str):
+    return pd.read_json(json_str, orient='records')
+
+
 if __name__ == '__main__':
     df = create_df()
     print(df)

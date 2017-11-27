@@ -125,6 +125,7 @@ from twisted.python import log
 from twisted.web.server import Site
 from twisted.internet import reactor
 from autobahn.twisted.websocket import WebSocketServerProtocol
+from preprocessing import *
 
 class MyServerProtocol(WebSocketServerProtocol):
 
@@ -140,8 +141,9 @@ class MyServerProtocol(WebSocketServerProtocol):
         else:
             print("Text message received: {}".format(payload.decode('utf8')))
 
-        # echo back message verbatim
-        self.sendMessage(payload, isBinary)
+        df = remove_categorical_var(get_df(payload.decode('utf8')))
+        ret = df.to_json(orient='records')
+        self.sendMessage(ret.encode('utf8'), isBinary)
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {}".format(reason))
