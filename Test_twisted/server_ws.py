@@ -104,7 +104,7 @@
 # if __name__ == "__main__":
 #     log.startLogging(sys.stdout)
 #
-#     # static file server seving index.html as root
+#     # static file server seving index_old.html as root
 #     root = File(".")
 #
 #     factory = WebSocketServerFactory(u"ws://127.0.0.1:8080")
@@ -127,8 +127,8 @@ from twisted.internet import reactor
 from autobahn.twisted.websocket import WebSocketServerProtocol
 from preprocessing import *
 
-class MyServerProtocol(WebSocketServerProtocol):
 
+class MyServerProtocol(WebSocketServerProtocol):
     def onConnect(self, request):
         print("Client connecting: {}".format(request.peer))
 
@@ -148,17 +148,20 @@ class MyServerProtocol(WebSocketServerProtocol):
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {}".format(reason))
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     import sys
-    # static file server seving index.html as root
+
+    # static file server seving index_old.html as root
     root = File(".")
 
     from twisted.python import log
     from twisted.internet import reactor
+
     log.startLogging(sys.stdout)
 
     from autobahn.twisted.websocket import WebSocketServerFactory
+
     factory = WebSocketServerFactory()
     factory.protocol = MyServerProtocol
 
