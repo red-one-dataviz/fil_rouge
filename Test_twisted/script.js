@@ -334,7 +334,21 @@ function addRowToList(info) {
         console.log(toShow);
     });
 
+    // Add Bin
+    const btnBin = document.createElement("button");
+    btnBin.type = "button";
+    btnBin.innerHTML = "Remove"
+    btnBin.clicked = false;
+    btnBin.addEventListener("click", function(e){
+        dataAll = dataAll.filter(el => (el.indexFile !== info.indexFile));
+        document.getElementById("graphSpace").innerHTML = "";
+        dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+        mySocket.send(JSON.stringify(dataToShow));
+    });
+
+
     tr.appendChild(tdCheckBox)
+    tr.appendChild(btnBin);
 
     listFilesBody.appendChild(tr)
 }
@@ -342,7 +356,7 @@ function addRowToList(info) {
 function plotSelectedFiles(e){
 // TODO : plot selected files from checkboxes
     document.getElementById("graphSpace").innerHTML = "";
-    dataToShow = dataAll.filter(el => toShow.has(el.indexFile))
+    dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
     mySocket.send(JSON.stringify(dataToShow));
 
 }
