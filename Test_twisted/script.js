@@ -188,18 +188,25 @@ var files = [];
 var idxFile = 0;
 var dataAll = [];
 // TODO refaire propre avec objets au lieu de 2 tableaux
-var colorClassesPath = [
-    "limePath",
-    "deepSkyBluePath",
-    "hotPinkPath",
-    "orangePath"
-];
+//var colorClassesPath = [
+//    "limePath",
+//    "deepSkyBluePath",
+//    "hotPinkPath",
+//    "orangePath"
+//];
 var colorClasses = [
     "lime",
     "deepSkyBlue",
     "hotPink",
     "orange"
 ];
+
+// Attempt to create colorClassesPath
+var colorClassesPath = colorClasses
+for (var i=colorClassesPath.length; i--;) {
+    colorClassesPath[i] = colorClassesPath[i] + "Path";
+}
+
 var limits = [0];
 
 var dropContainer = document.getElementById("dropContainer");
@@ -240,10 +247,16 @@ function addFile(e) {
             return function (e) {
                 d3.csv(e.target.result, function (error, data) {
 //                        fillPC(data);
+                    //data_formatted = data;
+                    for (var j = 0, len = data.length; j < len; j++) {
+                        data[j].indexFile = idxFile;
+                    }
+                    console.log("Data formatted : ");
+                    console.log(data);
                     // TODO Faire plus rapidement avec une propriété supp sur les points
                     // a exclure lors de la construction des axes
                     // uniquement pour le styling
-                    // Un peu dégeux
+                    // Un peu dégueu
                     limits.push(limits[limits.length - 1] + data.length);
                     dataAll = dataAll.concat(data);
                     var info = {
