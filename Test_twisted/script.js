@@ -56,10 +56,14 @@ function fillPC(data) {
         .enter().append("path")
         .attr("d", path);
 
+    console.log(data)
+    console.log(toShow)
+
     // Add blue foreground lines for focus.
     foreground = svg.append("g")
         .attr("class", "foreground")
         .selectAll("path")
+//        .data(data)
         .data(data)
         .enter().append("path")
         .attr("class", function (d, i) {
@@ -216,6 +220,10 @@ var uploadBtn = document.getElementById("uploadBtn");
 var uploadFile = document.getElementById("uploadFile");
 var btnAddFile = document.getElementById("addFile");
 
+
+var btnStart = document.getElementById("startPlot");
+var toShow = new Set();
+
 dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
     evt.preventDefault();
 };
@@ -231,6 +239,7 @@ dropContainer.ondrop = function (evt) {
 
 //btnAddFile.addEventListener("pointerdown", addFile, false);
 btnAddFile.addEventListener("click", addFile, false);
+btnStart.addEventListener("click", plotSelectedFiles, false)
 
 var listFilesBody = document.querySelector("#listFiles tbody")
 
@@ -265,7 +274,7 @@ function addFile(e) {
                         'name': theFile.name,
                         'nbLines': data.length,
                         'data': e.target.result,
-                        'index': idxFile
+                        'indexFile': idxFile
                     };
                     files.push(info);
                     addRowToList(info);
@@ -274,9 +283,9 @@ function addFile(e) {
                     // asynchrone, voir plus propre avec promesses.
                     if (idxFile === fin) {
                         // Eviter de clear all et de redessiner
-                        document.getElementById("graphSpace").innerHTML = "";
+                        //document.getElementById("graphSpace").innerHTML = "";
                         console.log(dataAll);
-                        mySocket.send(JSON.stringify(dataAll));
+                        //mySocket.send(JSON.stringify(dataAll));
                         //fillPC(dataAll);
                     }
                 });
@@ -298,9 +307,7 @@ function addRowToList(info) {
     tdNbLines.innerHTML = info.nbLines;
 
     const tdColor = document.createElement("td");
-    tdColor.classList.add(colorClasses[info.index]);
-
-    console.log(colorClasses[info.index]);
+    tdColor.classList.add(colorClasses[info.indexFile]);
 
     tr.appendChild(tdName);
     tr.appendChild(tdNbLines);
@@ -309,8 +316,33 @@ function addRowToList(info) {
     // Add CheckBox
     const tdCheckBox = document.createElement("input");
     tdCheckBox.type = "checkbox";
+    var key = "cb_" + info.indexFile;
+    tdCheckBox.id = key;
+    tdCheckBox.checked = true
+    toShow.add(info.indexFile);
+    console.log("Update Checkbox");
+
+    console.log(toShow);
+    // Add eventListener
+    tdCheckBox.addEventListener("click", function(e){
+        if(toShow.has(info.indexFile)){
+            toShow.delete(info.indexFile);
+        }
+        else{
+            toShow.add(info.indexFile);
+        }
+        console.log(toShow);
+    });
 
     tr.appendChild(tdCheckBox)
 
     listFilesBody.appendChild(tr)
+}
+
+function plotSelectedFiles(e){
+// TODO : plot selected files from checkboxes
+    document.getElementById("graphSpace").innerHTML = "";
+    dataToShow = dataAll.filter(el => toShow.has(el.indexFile))
+    mySocket.send(JSON.stringify(dataToShow));
+
 }
