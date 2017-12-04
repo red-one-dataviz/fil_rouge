@@ -36,11 +36,13 @@ function fillPC(data) {
 
     // Extract the list of dimensions and create a scale for each.
     x.domain(dimensions = d3.keys(data[0]).filter(function (d) {
-        return (y[d] = d3.scaleLinear()
-            .domain(d3.extent(data, function (p) {
-                return +p[d];
-            }))
-            .range([height, 15]));
+        if(d != 'indexFile'){ //TO BE IMPROVED (REMI IS CRYING)
+            return (y[d] = d3.scaleLinear()
+                .domain(d3.extent(data, function (p) {
+                    return +p[d];
+                }))
+                .range([height, 15]));
+        }
     }));
 
     extents = dimensions.map(function (p) {
@@ -202,9 +204,9 @@ var colorClasses = [
 ];
 
 // Attempt to create colorClassesPath
-var colorClassesPath = colorClasses
+var colorClassesPath = colorClasses.slice(0);
 for (var i=colorClassesPath.length; i--;) {
-    colorClassesPath[i] = colorClassesPath[i] + "Path";
+    colorClassesPath[i] = colorClasses[i] + "Path";
 }
 
 var limits = [0];
@@ -288,14 +290,27 @@ function addFile(e) {
 function addRowToList(info) {
     // TODO Rajouter des class sur les colonnes
     const tr = document.createElement("tr");
+
     const tdName = document.createElement("td");
     tdName.innerHTML = info.name;
+
     const tdNbLines = document.createElement("td");
     tdNbLines.innerHTML = info.nbLines;
+
     const tdColor = document.createElement("td");
     tdColor.classList.add(colorClasses[info.index]);
+
+    console.log(colorClasses[info.index]);
+
     tr.appendChild(tdName);
     tr.appendChild(tdNbLines);
     tr.appendChild(tdColor);
+
+    // Add CheckBox
+    const tdCheckBox = document.createElement("input");
+    tdCheckBox.type = "checkbox";
+
+    tr.appendChild(tdCheckBox)
+
     listFilesBody.appendChild(tr)
 }
