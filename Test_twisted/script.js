@@ -5,10 +5,15 @@ window.addEventListener("load", function() {
     mySocket = new WebSocket("ws://localhost:9000");
     // Ecoute pour les messages arrivant
     mySocket.onmessage = function (event) {
+        var res = JSON.parse(event.data);
+        var time = Date.now() - res.date;
         // Message reçu
         console.log("Reçu : ");
-        console.log(JSON.parse(event.data));
-        fillPC(JSON.parse(event.data));
+        console.log(res);
+        console.log("Traitement de la requète en " + time + " ms");
+        if(res.task === "preprocess") {
+            fillPC(res.data);
+        }
     };
 
 });
@@ -67,7 +72,7 @@ function fillPC(data) {
 //                console.log(i, index, limits[index], colorClasses[index - 1]);
             // TODO Faire un modulo pour rester dans le tableau
             // attention au mod en js
-            return colorClassesPath[index - 1];
+            return colorClassesPath[(index - 1) % colorClassesPath.length];
         })
         .attr("d", path);
     //console.log(dimensions);
@@ -261,7 +266,7 @@ function addFile(e) {
                         // Eviter de clear all et de redessiner
                         document.getElementById("graphSpace").innerHTML = "";
                         console.log(dataAll);
-                        mySocket.send(JSON.stringify(dataAll));
+                        sendPreprocessingRequest(dataAll)
                         //fillPC(dataAll);
                     }
                 });
@@ -271,6 +276,21 @@ function addFile(e) {
     }
 }
 
+function sendPreprocessingRequest(data) {
+    var msg = {
+        "task": "preprocess",
+        "data": data,
+        "date": Date.now(),
+        "idReq": getIdReq()
+    };
+    mySocket.send(JSON.stringify(msg));
+}
+
+var idReq = 0;
+
+function getIdReq() {
+    return idReq++;
+}
 
 function addRowToList(info) {
     // TODO Rajouter des class sur les colonnes
@@ -280,7 +300,7 @@ function addRowToList(info) {
     const tdNbLines = document.createElement("td");
     tdNbLines.innerHTML = info.nbLines;
     const tdColor = document.createElement("td");
-    tdColor.classList.add(colorClasses[info.index]);
+    tdColor.classList.add(colorClasses[(info.index) % colorClasses.length]);
     tr.appendChild(tdName);
     tr.appendChild(tdNbLines);
     tr.appendChild(tdColor);
