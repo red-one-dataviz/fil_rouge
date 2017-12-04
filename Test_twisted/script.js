@@ -56,10 +56,12 @@ function fillPC(data) {
         .enter().append("path")
         .attr("d", path);
 
-    console.log(data)
-    console.log(toShow)
+    console.log(data);
+    console.log(toShow);
 
     // Add blue foreground lines for focus.
+    var idColor = 0;
+    var lastId = data[0].indexFile;
     foreground = svg.append("g")
         .attr("class", "foreground")
         .selectAll("path")
@@ -67,13 +69,12 @@ function fillPC(data) {
         .data(data)
         .enter().append("path")
         .attr("class", function (d, i) {
-            var index = limits.findIndex(function (x) {
-                return x > i;
-            });
-//                console.log(i, index, limits[index], colorClasses[index - 1]);
-            // TODO Faire un modulo pour rester dans le tableau
-            // attention au mod en js
-            return colorClassesPath[index - 1];
+            // TODO - gérer le cas où les données d'un même fichier ne sont pas à la suite
+            if(d.indexFile !== lastId) {
+                idColor = (idColor + 1) % colorClassesPath.length;
+                lastId = d.indexFile;
+            }
+            return colorClassesPath[idColor];
         })
         .attr("d", path);
     //console.log(dimensions);
@@ -318,7 +319,7 @@ function addRowToList(info) {
     tdCheckBox.type = "checkbox";
     var key = "cb_" + info.indexFile;
     tdCheckBox.id = key;
-    tdCheckBox.checked = true
+    tdCheckBox.checked = true;
     toShow.add(info.indexFile);
     console.log("Update Checkbox");
 
@@ -334,7 +335,7 @@ function addRowToList(info) {
         console.log(toShow);
     });
 
-    tr.appendChild(tdCheckBox)
+    tr.appendChild(tdCheckBox);
 
     listFilesBody.appendChild(tr)
 }
@@ -342,7 +343,7 @@ function addRowToList(info) {
 function plotSelectedFiles(e){
 // TODO : plot selected files from checkboxes
     document.getElementById("graphSpace").innerHTML = "";
-    dataToShow = dataAll.filter(el => toShow.has(el.indexFile))
+    dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
     mySocket.send(JSON.stringify(dataToShow));
 
 }
