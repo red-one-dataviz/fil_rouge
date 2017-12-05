@@ -12,12 +12,13 @@ window.addEventListener("load", function() {
     };
 
 });
-
 var margin = {top: 30, right: 10, bottom: 10, left: 10},
     width = 1000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 function fillPC(data) {
+    console.log(metaData);
+    fillCells();
     var x = d3.scaleBand().rangeRound([0, width]).padding(1),
         y = {},
         dragging = {};
@@ -69,12 +70,7 @@ function fillPC(data) {
         .data(data)
         .enter().append("path")
         .attr("class", function (d, i) {
-            // TODO - gérer le cas où les données d'un même fichier ne sont pas à la suite
-            if(d.indexFile !== lastId) {
-                idColor = (idColor + 1) % colorClassesPath.length;
-                lastId = d.indexFile;
-            }
-            return colorClassesPath[idColor];
+            return metaData.pc.colors[d.indexFile];
         })
         .attr("d", path);
     //console.log(dimensions);
@@ -194,13 +190,12 @@ function fillPC(data) {
 var files = [];
 var idxFile = 0;
 var dataAll = [];
-// TODO refaire propre avec objets au lieu de 2 tableaux
-//var colorClassesPath = [
-//    "limePath",
-//    "deepSkyBluePath",
-//    "hotPinkPath",
-//    "orangePath"
-//];
+// TODO
+var metaData= {};
+metaData.pc = {};
+metaData.pc.cellColors = {};
+
+
 var colorClasses = [
     "lime",
     "deepSkyBlue",
@@ -224,7 +219,7 @@ var btnAddFile = document.getElementById("addFile");
 
 var btnStart = document.getElementById("startPlot");
 var toShow = new Set();
-
+console.log(dropContainer)
 dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
     evt.preventDefault();
 };
@@ -297,6 +292,19 @@ function addFile(e) {
 }
 
 
+function fillCells() {
+
+    for (const prop in metaData.pc.cellColors) {
+        if (metaData.pc.cellColors.hasOwnProperty(prop)) {
+            metaData.pc.cellColors[prop].className = "";
+        }
+    }
+    for (let id of toShow) {
+        // TODO - on peut faire mieux que ça
+        metaData.pc.cellColors[id].classList.add(metaData.pc.colors[id].slice(0, -4));
+    }
+}
+
 function addRowToList(info) {
     // TODO Rajouter des class sur les colonnes
     const tr = document.createElement("tr");
@@ -308,11 +316,12 @@ function addRowToList(info) {
     tdNbLines.innerHTML = info.nbLines;
 
     const tdColor = document.createElement("td");
-    tdColor.classList.add(colorClasses[info.indexFile]);
+    // tdColor.classList.add(colorClasses[info.indexFile]);
 
     tr.appendChild(tdName);
     tr.appendChild(tdNbLines);
     tr.appendChild(tdColor);
+    metaData.pc.cellColors[info.indexFile] = tdColor;
 
     // Add CheckBox
     const tdCheckBox = document.createElement("input");
@@ -343,7 +352,7 @@ function addRowToList(info) {
     btnBin.addEventListener("click", function(e){
         dataAll = dataAll.filter(el => (el.indexFile !== info.indexFile));
         document.getElementById("graphSpace").innerHTML = "";
-        dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+        var dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
         mySocket.send(JSON.stringify(dataToShow));
     });
 
@@ -357,6 +366,12 @@ function addRowToList(info) {
 function plotSelectedFiles(e){
 // TODO : plot selected files from checkboxes
     document.getElementById("graphSpace").innerHTML = "";
+    metaData.pc.colors = {};
+    var idColor = 0;
+    toShow.forEach(function(key){
+        metaData.pc.colors[key] = colorClassesPath[idColor];
+        idColor = (idColor + 1) % colorClassesPath.length;
+    });
     dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
     mySocket.send(JSON.stringify(dataToShow));
 
