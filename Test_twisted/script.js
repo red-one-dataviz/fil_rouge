@@ -52,6 +52,12 @@ var margin = {top: 30, right: 10, bottom: 10, left: 10},
     height = 500 - margin.top - margin.bottom;
 
 function fillPC(data) {
+    var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
+    for(let d of data){
+        d.Datetime = parseTime(d.Datetime);
+    }
+    console.log("Beautiful data");
+    console.log(data)
     console.log(metaData);
     fillCells();
     var x = d3.scaleBand().rangeRound([0, width]).padding(1),
@@ -71,8 +77,15 @@ function fillPC(data) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Extract the list of dimensions and create a scale for each.
-    x.domain(dimensions = d3.keys(data[0]).filter(function (d) {
+    x.domain(dimensions = d3.keys(data[0]).filter(function (d, i) {
         if(d != 'indexFile'){ //TO BE IMPROVED (REMI IS CRYING)
+            if(i == 0){
+                return(y[d] = d3.scaleTime()
+                .domain(d3.extent(data, function (p) {
+                    return p.d;
+                }))
+                .range([height, 15]));
+            }
             return (y[d] = d3.scaleLinear()
                 .domain(d3.extent(data, function (p) {
                     return +p[d];
@@ -155,8 +168,12 @@ function fillPC(data) {
 
     g.append("g")
         .attr("class", "axis")
-        .each(function (d) {
-            d3.select(this).call(d3.axisLeft(y[d]));
+        .each(function (d, i) {
+            var ax = d3.axisLeft(y[d]);
+            if(i==0){
+                ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%Y-%m-%d %H:%M:%S"));
+            }
+            d3.select(this).call(ax);
         })
         .append("text")
         .style("text-anchor", "middle")
@@ -269,6 +286,7 @@ function addFile(e) {
                     //data_formatted = data;
                     for (let j = 0, len = data.length; j < len; j++) {
                         data[j].indexFile = idxFile;
+                        //data[j].Datetime = parseTime(data[j].Datetime);
                     }
                     console.log("Data formatted : ");
                     console.log(data);
