@@ -1,5 +1,11 @@
 // TODO - sale, refaire la gestion de la concurrence
 var mySocket;
+var dropContainer;
+var uploadBtn;
+var uploadFile;
+var btnStart;
+var btnAddFile;
+
 window.addEventListener("load", function() {
     // Crée l'instance WebSocket
     mySocket = new WebSocket("ws://localhost:9000");
@@ -10,6 +16,30 @@ window.addEventListener("load", function() {
         console.log(JSON.parse(event.data));
         fillPC(JSON.parse(event.data));
     };
+    dropContainer = document.getElementById("dropContainer");
+    uploadBtn = document.getElementById("uploadBtn");
+    uploadFile = document.getElementById("uploadFile");
+    btnAddFile = document.getElementById("addFile");
+
+    btnStart = document.getElementById("startPlot");
+    listFilesBody = document.querySelector("#listFiles tbody");
+
+    dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
+        evt.preventDefault();
+    };
+    uploadBtn.onchange = function () {
+        uploadFile.value = this.value;
+
+    };
+    dropContainer.ondrop = function (evt) {
+        fileInput.files = evt.dataTransfer.files;
+        evt.preventDefault();
+
+    };
+    //btnAddFile.addEventListener("pointerdown", addFile, false);
+    btnAddFile.addEventListener("click", addFile, false);
+
+    btnStart.addEventListener("click", plotSelectedFiles, false);
 
 });
 var margin = {top: 30, right: 10, bottom: 10, left: 10},
@@ -211,33 +241,10 @@ for (var i=colorClassesPath.length; i--;) {
 
 var limits = [0];
 
-var dropContainer = document.getElementById("dropContainer");
-var uploadBtn = document.getElementById("uploadBtn");
-var uploadFile = document.getElementById("uploadFile");
-var btnAddFile = document.getElementById("addFile");
 
-
-var btnStart = document.getElementById("startPlot");
 var toShow = new Set();
-console.log(dropContainer)
-dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
-    evt.preventDefault();
-};
 
-uploadBtn.onchange = function () {
-    uploadFile.value = this.value;
-};
 
-dropContainer.ondrop = function (evt) {
-    fileInput.files = evt.dataTransfer.files;
-    evt.preventDefault();
-};
-
-//btnAddFile.addEventListener("pointerdown", addFile, false);
-btnAddFile.addEventListener("click", addFile, false);
-btnStart.addEventListener("click", plotSelectedFiles, false)
-
-var listFilesBody = document.querySelector("#listFiles tbody")
 
 function addFile(e) {
     console.log("added !");
@@ -255,7 +262,7 @@ function addFile(e) {
                 d3.csv(e.target.result, function (error, data) {
 //                        fillPC(data);
                     //data_formatted = data;
-                    for (var j = 0, len = data.length; j < len; j++) {
+                    for (let j = 0, len = data.length; j < len; j++) {
                         data[j].indexFile = idxFile;
                     }
                     console.log("Data formatted : ");
@@ -266,7 +273,7 @@ function addFile(e) {
                     // Un peu dégueu
                     limits.push(limits[limits.length - 1] + data.length);
                     dataAll = dataAll.concat(data);
-                    var info = {
+                    let info = {
                         'name': theFile.name,
                         'nbLines': data.length,
                         'data': e.target.result,
@@ -305,9 +312,20 @@ function fillCells() {
     }
 }
 
+function removeRow(id) {
+    let trs = document.getElementsByClassName("affPc");
+    for(let tr of trs) {
+        if(tr.index === id) {
+            tr.parentNode.removeChild(tr);
+        }
+    }
+}
+
 function addRowToList(info) {
     // TODO Rajouter des class sur les colonnes
     const tr = document.createElement("tr");
+    tr.index = info.indexFile;
+    tr.className = "affPc";
 
     const tdName = document.createElement("td");
     tdName.innerHTML = info.name;
@@ -326,8 +344,7 @@ function addRowToList(info) {
     // Add CheckBox
     const tdCheckBox = document.createElement("input");
     tdCheckBox.type = "checkbox";
-    var key = "cb_" + info.indexFile;
-    tdCheckBox.id = key;
+    tdCheckBox.id = "cb_" + info.indexFile;
     tdCheckBox.checked = true;
     toShow.add(info.indexFile);
     console.log("Update Checkbox");
@@ -347,17 +364,21 @@ function addRowToList(info) {
     // Add Bin
     const btnBin = document.createElement("button");
     btnBin.type = "button";
-    btnBin.innerHTML = "Remove"
+    btnBin.innerHTML = "Remove";
     btnBin.clicked = false;
     btnBin.addEventListener("click", function(e){
         dataAll = dataAll.filter(el => (el.indexFile !== info.indexFile));
-        document.getElementById("graphSpace").innerHTML = "";
-        var dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
-        mySocket.send(JSON.stringify(dataToShow));
+        if(toShow.has(info.indexFile)){
+            toShow.delete(info.indexFile);
+        }
+        removeRow(info.indexFile);
+        // document.getElementById("graphSpace").innerHTML = "";
+        // var dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+        // mySocket.send(JSON.stringify(dataToShow));
     });
 
 
-    tr.appendChild(tdCheckBox)
+    tr.appendChild(tdCheckBox);
     tr.appendChild(btnBin);
 
     listFilesBody.appendChild(tr)
@@ -367,7 +388,7 @@ function plotSelectedFiles(e){
 // TODO : plot selected files from checkboxes
     document.getElementById("graphSpace").innerHTML = "";
     metaData.pc.colors = {};
-    var idColor = 0;
+    let idColor = 0;
     toShow.forEach(function(key){
         metaData.pc.colors[key] = colorClassesPath[idColor];
         idColor = (idColor + 1) % colorClassesPath.length;
