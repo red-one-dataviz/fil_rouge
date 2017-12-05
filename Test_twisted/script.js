@@ -1,5 +1,11 @@
 // TODO - sale, refaire la gestion de la concurrence
 var mySocket;
+var dropContainer;
+var uploadBtn;
+var uploadFile;
+var btnStart;
+var btnAddFile;
+
 window.addEventListener("load", function() {
     // Crée l'instance WebSocket
     mySocket = new WebSocket("ws://localhost:9000");
@@ -15,14 +21,39 @@ window.addEventListener("load", function() {
             fillPC(res.data);
         }
     };
+    dropContainer = document.getElementById("dropContainer");
+    uploadBtn = document.getElementById("uploadBtn");
+    uploadFile = document.getElementById("uploadFile");
+    btnAddFile = document.getElementById("addFile");
+
+    btnStart = document.getElementById("startPlot");
+    listFilesBody = document.querySelector("#listFiles tbody");
+
+    dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
+        evt.preventDefault();
+    };
+    uploadBtn.onchange = function () {
+        uploadFile.value = this.value;
+
+    };
+    dropContainer.ondrop = function (evt) {
+        fileInput.files = evt.dataTransfer.files;
+        evt.preventDefault();
+
+    };
+    //btnAddFile.addEventListener("pointerdown", addFile, false);
+    btnAddFile.addEventListener("click", addFile, false);
+
+    btnStart.addEventListener("click", plotSelectedFiles, false);
 
 });
-
 var margin = {top: 30, right: 10, bottom: 10, left: 10},
     width = 1000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
 function fillPC(data) {
+    console.log(metaData);
+    fillCells();
     var x = d3.scaleBand().rangeRound([0, width]).padding(1),
         y = {},
         dragging = {};
@@ -41,11 +72,13 @@ function fillPC(data) {
 
     // Extract the list of dimensions and create a scale for each.
     x.domain(dimensions = d3.keys(data[0]).filter(function (d) {
-        return (y[d] = d3.scaleLinear()
-            .domain(d3.extent(data, function (p) {
-                return +p[d];
-            }))
-            .range([height, 15]));
+        if(d != 'indexFile'){ //TO BE IMPROVED (REMI IS CRYING)
+            return (y[d] = d3.scaleLinear()
+                .domain(d3.extent(data, function (p) {
+                    return +p[d];
+                }))
+                .range([height, 15]));
+        }
     }));
 
     extents = dimensions.map(function (p) {
@@ -59,20 +92,20 @@ function fillPC(data) {
         .enter().append("path")
         .attr("d", path);
 
+    console.log(data);
+    console.log(toShow);
+
     // Add blue foreground lines for focus.
+    var idColor = 0;
+    var lastId = data[0].indexFile;
     foreground = svg.append("g")
         .attr("class", "foreground")
         .selectAll("path")
+//        .data(data)
         .data(data)
         .enter().append("path")
         .attr("class", function (d, i) {
-            var index = limits.findIndex(function (x) {
-                return x > i;
-            });
-//                console.log(i, index, limits[index], colorClasses[index - 1]);
-            // TODO Faire un modulo pour rester dans le tableau
-            // attention au mod en js
-            return colorClassesPath[(index - 1) % colorClassesPath.length];
+            return metaData.pc.colors[d.indexFile];
         })
         .attr("d", path);
     //console.log(dimensions);
@@ -192,43 +225,31 @@ function fillPC(data) {
 var files = [];
 var idxFile = 0;
 var dataAll = [];
-// TODO refaire propre avec objets au lieu de 2 tableaux
-var colorClassesPath = [
-    "limePath",
-    "deepSkyBluePath",
-    "hotPinkPath",
-    "orangePath"
-];
+// TODO
+var metaData= {};
+metaData.pc = {};
+metaData.pc.cellColors = {};
+
+
 var colorClasses = [
     "lime",
     "deepSkyBlue",
     "hotPink",
     "orange"
 ];
+
+// Attempt to create colorClassesPath
+var colorClassesPath = colorClasses.slice(0);
+for (var i=colorClassesPath.length; i--;) {
+    colorClassesPath[i] = colorClasses[i] + "Path";
+}
+
 var limits = [0];
 
-var dropContainer = document.getElementById("dropContainer");
-var uploadBtn = document.getElementById("uploadBtn");
-var uploadFile = document.getElementById("uploadFile");
-var btnAddFile = document.getElementById("addFile");
 
-dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
-    evt.preventDefault();
-};
+var toShow = new Set();
 
-uploadBtn.onchange = function () {
-    uploadFile.value = this.value;
-};
 
-dropContainer.ondrop = function (evt) {
-    fileInput.files = evt.dataTransfer.files;
-    evt.preventDefault();
-};
-
-//btnAddFile.addEventListener("pointerdown", addFile, false);
-btnAddFile.addEventListener("click", addFile, false);
-
-var listFilesBody = document.querySelector("#listFiles tbody")
 
 function addFile(e) {
     console.log("added !");
@@ -245,17 +266,23 @@ function addFile(e) {
             return function (e) {
                 d3.csv(e.target.result, function (error, data) {
 //                        fillPC(data);
+                    //data_formatted = data;
+                    for (let j = 0, len = data.length; j < len; j++) {
+                        data[j].indexFile = idxFile;
+                    }
+                    console.log("Data formatted : ");
+                    console.log(data);
                     // TODO Faire plus rapidement avec une propriété supp sur les points
                     // a exclure lors de la construction des axes
                     // uniquement pour le styling
-                    // Un peu dégeux
+                    // Un peu dégueu
                     limits.push(limits[limits.length - 1] + data.length);
                     dataAll = dataAll.concat(data);
-                    var info = {
+                    let info = {
                         'name': theFile.name,
                         'nbLines': data.length,
                         'data': e.target.result,
-                        'index': idxFile
+                        'indexFile': idxFile
                     };
                     files.push(info);
                     addRowToList(info);
@@ -264,9 +291,9 @@ function addFile(e) {
                     // asynchrone, voir plus propre avec promesses.
                     if (idxFile === fin) {
                         // Eviter de clear all et de redessiner
-                        document.getElementById("graphSpace").innerHTML = "";
+                        //document.getElementById("graphSpace").innerHTML = "";
                         console.log(dataAll);
-                        sendPreprocessingRequest(dataAll)
+                        //mySocket.send(JSON.stringify(dataAll));
                         //fillPC(dataAll);
                     }
                 });
@@ -292,17 +319,102 @@ function getIdReq() {
     return idReq++;
 }
 
+function fillCells() {
+
+    for (const prop in metaData.pc.cellColors) {
+        if (metaData.pc.cellColors.hasOwnProperty(prop)) {
+            metaData.pc.cellColors[prop].className = "";
+        }
+    }
+    for (let id of toShow) {
+        // TODO - on peut faire mieux que ça
+        metaData.pc.cellColors[id].classList.add(metaData.pc.colors[id].slice(0, -4));
+    }
+}
+
+function removeRow(id) {
+    let trs = document.getElementsByClassName("affPc");
+    for(let tr of trs) {
+        if(tr.index === id) {
+            tr.parentNode.removeChild(tr);
+        }
+    }
+}
+
 function addRowToList(info) {
     // TODO Rajouter des class sur les colonnes
     const tr = document.createElement("tr");
+    tr.index = info.indexFile;
+    tr.className = "affPc";
+
     const tdName = document.createElement("td");
     tdName.innerHTML = info.name;
+
     const tdNbLines = document.createElement("td");
     tdNbLines.innerHTML = info.nbLines;
+
     const tdColor = document.createElement("td");
-    tdColor.classList.add(colorClasses[(info.index) % colorClasses.length]);
+    // tdColor.classList.add(colorClasses[info.indexFile]);
+
     tr.appendChild(tdName);
     tr.appendChild(tdNbLines);
     tr.appendChild(tdColor);
+    metaData.pc.cellColors[info.indexFile] = tdColor;
+
+    // Add CheckBox
+    const tdCheckBox = document.createElement("input");
+    tdCheckBox.type = "checkbox";
+    tdCheckBox.id = "cb_" + info.indexFile;
+    tdCheckBox.checked = true;
+    toShow.add(info.indexFile);
+    console.log("Update Checkbox");
+
+    console.log(toShow);
+    // Add eventListener
+    tdCheckBox.addEventListener("click", function(e){
+        if(toShow.has(info.indexFile)){
+            toShow.delete(info.indexFile);
+        }
+        else{
+            toShow.add(info.indexFile);
+        }
+        console.log(toShow);
+    });
+
+    // Add Bin
+    const btnBin = document.createElement("button");
+    btnBin.type = "button";
+    btnBin.innerHTML = "Remove";
+    btnBin.clicked = false;
+    btnBin.addEventListener("click", function(e){
+        dataAll = dataAll.filter(el => (el.indexFile !== info.indexFile));
+        if(toShow.has(info.indexFile)){
+            toShow.delete(info.indexFile);
+        }
+        removeRow(info.indexFile);
+        // document.getElementById("graphSpace").innerHTML = "";
+        // var dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+        // mySocket.send(JSON.stringify(dataToShow));
+    });
+
+
+    tr.appendChild(tdCheckBox);
+    tr.appendChild(btnBin);
+
     listFilesBody.appendChild(tr)
+}
+
+function plotSelectedFiles(e){
+    // TODO : plot selected files from checkboxes
+    document.getElementById("graphSpace").innerHTML = "";
+    metaData.pc.colors = {};
+    let idColor = 0;
+    toShow.forEach(function(key){
+        metaData.pc.colors[key] = colorClassesPath[idColor];
+        idColor = (idColor + 1) % colorClassesPath.length;
+    });
+    dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+    //mySocket.send(JSON.stringify(dataToShow));
+    sendPreprocessingRequest(dataAll);
+
 }
