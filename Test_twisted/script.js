@@ -78,14 +78,17 @@ function fillPC(data) {
 
     // Extract the list of dimensions and create a scale for each.
     x.domain(dimensions = d3.keys(data[0]).filter(function (d, i) {
-        if(d != 'indexFile'){ //TO BE IMPROVED (REMI IS CRYING)
-            if(i == 0){
-                return(y[d] = d3.scaleTime()
+        // TODO - dégueux
+        console.log(i,d);
+        if(d === 'Datetime'){
+            return(y[d] = d3.scaleTime()
                 .domain(d3.extent(data, function (p) {
-                    return p.d;
+                    return p[d];
                 }))
                 .range([height, 15]));
-            }
+        }
+        if(d !== 'indexFile'){ //TO BE IMPROVED (REMI IS CRYING)
+
             return (y[d] = d3.scaleLinear()
                 .domain(d3.extent(data, function (p) {
                     return +p[d];
@@ -169,8 +172,8 @@ function fillPC(data) {
     g.append("g")
         .attr("class", "axis")
         .each(function (d, i) {
-            var ax = d3.axisLeft(y[d]);
-            if(i==0){
+            let ax = d3.axisLeft(y[d]);
+            if(d === "Datetime"){
                 ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%Y-%m-%d %H:%M:%S"));
             }
             d3.select(this).call(ax);
