@@ -20,7 +20,8 @@ def remove_categorical_var(df):
 
 def remove_categorical_var2(df):
     # Suppose first column is necesseraly the datetime column
-    datetime = df.iloc[:, 0]  # Store datetime column somewhere else
+    datetime = df["date time"]  # Store datetime column somewhere else
+    # datetime = df.iloc[:, 0]  # Store datetime column somewhere else
     print(datetime.dtypes)
     df = df.apply(pd.to_numeric, errors='coerce')
     df_cleaned = df.dropna(axis=1)

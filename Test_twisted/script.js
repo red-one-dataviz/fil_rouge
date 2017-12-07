@@ -54,7 +54,8 @@ var margin = {top: 30, right: 10, bottom: 10, left: 10},
 function fillPC(data) {
     var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
     for(let d of data){
-        d.Datetime = parseTime(d.Datetime);
+//        d.Datetime = parseTime(d.Datetime);
+        d["date time"] = parseTime(d["date time"]);
     }
     console.log("Beautiful data");
     console.log(data)
@@ -80,7 +81,7 @@ function fillPC(data) {
     x.domain(dimensions = d3.keys(data[0]).filter(function (d, i) {
         // TODO - dégueux
         console.log(i,d);
-        if(d === 'Datetime'){
+        if(d === 'date time'){
             return(y[d] = d3.scaleTime()
                 .domain(d3.extent(data, function (p) {
                     return p[d];
@@ -173,7 +174,7 @@ function fillPC(data) {
         .attr("class", "axis")
         .each(function (d, i) {
             let ax = d3.axisLeft(y[d]);
-            if(d === "Datetime"){
+            if(d === "date time"){
                 ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%Y-%m-%d %H:%M:%S"));
             }
             d3.select(this).call(ax);
