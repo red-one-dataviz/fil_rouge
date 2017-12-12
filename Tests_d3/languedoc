@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    body {
+        font: 10px sans-serif;
+    }
+
+</style>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+<script>
+
+    var width = 960,
+        height = 1100;
+
+    var path = d3.geo.path()
+        .projection(null);
+
+    var color = d3.scale.linear()
+        .domain([4, 500, 1000, 5000, 15000, 20000, 25000, 250000])
+        .range(["#fff7ec", "#fee8c8", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#b30000", "#7f0000"]);
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    d3.json("lr.json", function(error, lr) {
+        if (error) throw error;
+
+        svg.append("g").selectAll("path")
+            .data(topojson.feature(lr, lr.objects.communes).features)
+            .enter().append("path")
+            .attr("class","commune")
+            .attr("d", path)
+            .style("fill", function(d) { return color(d.properties.population); });
+
+        svg.append("g").selectAll("text")
+            .data(topojson.feature(lr, lr.objects.places).features)
+            .enter().append("text")
+            .attr("transform", function(d) { return "translate(" + d.geometry.coordinates + ")"; })
+            .style("text-anchor", "middle")
+            .style("font-size","17px")
+            .style("text-shadow", "0px 0px 2px #fff")
+            .text(function(d) { return d.properties.name; });
+
+    });
+
+    d3.select(self.frameElement).style("height", height + "px");
+
+</script>
