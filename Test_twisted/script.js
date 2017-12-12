@@ -47,9 +47,9 @@ window.addEventListener("load", function() {
     btnStart.addEventListener("click", plotSelectedFiles, false);
 
 });
-var margin = {top: 30, right: 10, bottom: 10, left: 10},
-    width = 1000 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var margin = {top: 110, right: 10, bottom: 10, left: 50},
+    width = 1200 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
 
 function fillPC(data) {
     var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
@@ -180,13 +180,17 @@ function fillPC(data) {
             d3.select(this).call(ax);
         })
         .append("text")
-        .style("text-anchor", "middle")
+        // .style("text-anchor", "middle")
+        .style("text-anchor", "start")
         .attr("y", -9)
         .text(function (d) {
             return d;
         })
         .style("font-size", "20px")
-        .attr("transform", " translate(0,0)");
+        // .attr("dx", "-.8em")
+        // .attr("dy", "1.8em")
+        // .attr("transform", " translate(0,0)");
+        .attr("transform", "translate(0,10) rotate(-45)");
 
 
     // Add and store a brush for each axis.
