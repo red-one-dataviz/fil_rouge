@@ -74,7 +74,7 @@ function fillPC(data) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Extract the list of dimensions and create a scale for each.
-    x.domain(dimensions = d3.keys(data[0]).filter(function (d, i) {
+    dimensions = d3.keys(data[0]).filter(function (d, i) {
         // TODO - dégueux
         if(d === 'date time'){
             return(y[d] = d3.scaleTime()
@@ -83,7 +83,7 @@ function fillPC(data) {
                 }))
                 .range([height, 15]));
         }
-        if(d !== 'indexFile'){ //TO BE IMPROVED (REMI IS CRYING)
+        if(d !== 'indexFile'){
 
             return (y[d] = d3.scaleLinear()
                 .domain(d3.extent(data, function (p) {
@@ -91,7 +91,12 @@ function fillPC(data) {
                 }))
                 .range([height, 15]));
         }
-    }));
+    });
+    let index = dimensions.indexOf("date time");
+    let t = dimensions[0];
+    dimensions[0] = dimensions[index];
+    dimensions[index] = t;
+    x.domain(dimensions);
 
     extents = dimensions.map(function (p) {
         return [0, 0];
@@ -121,6 +126,8 @@ function fillPC(data) {
         .attr("d", path);
 
     // Add a group element for each dimension.
+    console.log("DIMENSIONS")
+    console.log(dimensions)
     var g = svg.selectAll(".dimension")
         .data(dimensions)
         .enter().append("g")
