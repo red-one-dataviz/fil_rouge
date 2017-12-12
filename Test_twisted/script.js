@@ -33,14 +33,18 @@ window.addEventListener("load", function() {
         evt.preventDefault();
     };
     uploadBtn.onchange = function () {
-        uploadFile.value = this.value;
-
+        console.log(this.value)
+//        uploadFile.value = this.value;
     };
     dropContainer.ondrop = function (evt) {
-        fileInput.files = evt.dataTransfer.files;
-        evt.preventDefault();
+        // REALLY UGLY SORRY REMI :D
+        uploadFile.value = evt.dataTransfer.files.length + " files selected";
+        console.log(uploadFile.value);
 
+        uploadBtn.files = evt.dataTransfer.files;
+        evt.preventDefault();
     };
+
     //btnAddFile.addEventListener("pointerdown", addFile, false);
     btnAddFile.addEventListener("click", addFile, false);
 
