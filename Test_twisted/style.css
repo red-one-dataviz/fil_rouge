@@ -1,0 +1,230 @@
+
+body {
+    margin: 10px;
+    text-align: center;
+    background: #202020;
+    color: white;
+}
+
+/** FILE INPUT **/
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    /*margin: 10px;*/
+    margin-top: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    background-color: #BDBDBD;
+    border-color: #4c4c4c;
+    border-style: dashed;
+    border-width: 1px;
+    height: 200px;
+    width: 200px;
+    text-align: center;
+}
+
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    /*margin: 0;*/
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    height: 100%;
+    text-align: center;
+}
+
+.custom-span {
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 100px;
+    color: #FE57A1
+}
+
+#uploadFile {
+    border: none;
+    margin-left: 10px;
+    width: 200px;
+}
+
+.custom-para {
+    font-family: arial;
+    font-weight: bold;
+    font-size: 24px;
+    color: #585858;
+}
+
+/* ENF FILE INPUT **/
+
+/** BUTTONS **/
+.btn-1 {
+    background-color: #FE57A1;
+}
+
+.btn-1 .round {
+    background-color: #FE89bd;
+}
+
+.btn {
+    text-decoration: none;
+    -moz-border-radius: 30px;
+    -webkit-border-radius: 30px;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 53px 12px 23px;
+    color: #fff;
+    text-transform: uppercase;
+    font-family: sans-serif;
+    font-weight: bold;
+    position: relative;
+    -moz-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.btn span {
+    position: relative;
+    z-index: 3;
+}
+
+.btn .round {
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    -webkit-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+    z-index: 2;
+}
+
+.btn .round i {
+    position: absolute;
+    top: 50%;
+    margin-top: -6px;
+    left: 50%;
+    margin-left: -4px;
+    -moz-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+}
+
+.txt {
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.type-1 .btn:hover {
+    padding-left: 48px;
+    padding-right: 28px;
+}
+
+.type-1 .btn:hover .round {
+    width: calc(100% - 6px);
+    -moz-border-radius: 30px;
+    -webkit-border-radius: 30px;
+    border-radius: 30px;
+}
+
+.type-1 .btn:hover .round i {
+    left: 12%;
+}
+
+/** END BUTTONS **/
+
+.lime {
+    background-color: lime;
+}
+
+.hotPink {
+    background-color: hotpink;
+}
+
+.deepSkyBlue {
+    background-color: deepskyblue;
+}
+
+.orange {
+    background-color: orange;
+}
+
+svg {
+    font: 10px sans-serif;
+}
+
+.background path {
+    fill: none;
+    stroke: #ddd;
+    shape-rendering: crispEdges;
+    stroke-opacity: 0.3;
+}
+
+/*.foreground path {*/
+    /*fill: none;*/
+    /*stroke: lime;*/
+    /*!*stroke: hotpink;*!*/
+/*}*/
+
+.limePath {
+    fill: none;
+    stroke: lime;
+}
+
+.hotPinkPath {
+    fill: none;
+    stroke: hotpink;
+}
+
+.deepSkyBluePath {
+    fill: none;
+    stroke: deepskyblue;
+}
+
+.orangePath {
+    fill: none;
+    stroke: orange;
+}
+
+.notSelected {
+    fill: none;
+    stroke: #ddd;
+    shape-rendering: crispEdges;
+    stroke-opacity: 0.02;
+}
+
+.brush .extent {
+    fill-opacity: .3;
+    stroke: #fff;
+    shape-rendering: crispEdges;
+}
+
+.axis line {
+    fill: white;
+}
+
+.axis path {
+    fill: none;
+    stroke: #fff;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    fill: white;
+    font-size: 12px;
+    cursor: move;
+}
