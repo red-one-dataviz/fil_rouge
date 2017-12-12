@@ -33,19 +33,10 @@ window.addEventListener("load", function() {
         evt.preventDefault();
     };
     uploadBtn.onchange = function (e) {
-        console.log("onchange");
-        console.log(e);
-        console.log(this.value)
-//        uploadFile.value = this.value;
         uploadFile.value = uploadBtn.files.length > 1 ? uploadBtn.files.length + " files selected" : uploadBtn.files.length + " file selected";
 
     };
     dropContainer.ondrop = function (evt) {
-        // REALLY UGLY SORRY REMI :D
-        console.log("ondrop");
-        console.log(evt)
-        console.log(uploadFile.value);
-
         uploadBtn.files = evt.dataTransfer.files;
         evt.preventDefault();
     };
@@ -63,12 +54,8 @@ var margin = {top: 110, right: 10, bottom: 10, left: 50},
 function fillPC(data) {
     var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
     for(let d of data){
-//        d.Datetime = parseTime(d.Datetime);
         d["date time"] = parseTime(d["date time"]);
     }
-    console.log("Beautiful data");
-    console.log(data)
-    console.log(metaData);
     fillCells();
     var x = d3.scaleBand().rangeRound([0, width]).padding(1),
         y = {},
@@ -89,7 +76,6 @@ function fillPC(data) {
     // Extract the list of dimensions and create a scale for each.
     x.domain(dimensions = d3.keys(data[0]).filter(function (d, i) {
         // TODO - dégueux
-        console.log(i,d);
         if(d === 'date time'){
             return(y[d] = d3.scaleTime()
                 .domain(d3.extent(data, function (p) {
@@ -110,22 +96,21 @@ function fillPC(data) {
     extents = dimensions.map(function (p) {
         return [0, 0];
     });
-    // Add grey background lines for context.
-    background = svg.append("g")
-        .attr("class", "background")
-        .selectAll("path")
-        .data(data)
-        .enter().append("path")
-        .attr("d", path);
+    // TODO - background
+    // // Add grey background lines for context.
+    // background = svg.append("g")
+    //     .attr("class", "background")
+    //     .selectAll("path")
+    //     .data(data)
+    //     .enter().append("path")
+    //     .attr("d", path);
 
-    console.log(data);
-    console.log(toShow);
 
     // Add blue foreground lines for focus.
     var idColor = 0;
     var lastId = data[0].indexFile;
     foreground = svg.append("g")
-        .attr("class", "foreground")
+        // .attr("class", "foreground")
         .selectAll("path")
 //        .data(data)
         .data(data)
@@ -134,7 +119,6 @@ function fillPC(data) {
             return metaData.pc.colors[d.indexFile];
         })
         .attr("d", path);
-    //console.log(dimensions);
 
     // Add a group element for each dimension.
     var g = svg.selectAll(".dimension")
@@ -150,7 +134,8 @@ function fillPC(data) {
             })
             .on("start", function (d) {
                 dragging[d] = x(d);
-                background.attr("visibility", "hidden");
+                // TODO - background
+                // background.attr("visibility", "hidden");
             })
             .on("drag", function (d) {
                 dragging[d] = Math.min(width, Math.max(0, d3.event.x));
@@ -167,16 +152,16 @@ function fillPC(data) {
                 delete dragging[d];
                 transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
                 transition(foreground).attr("d", path);
-                background
-                    .attr("d", path)
-                    .transition()
-                    .delay(500)
-                    .duration(0)
-                    .attr("visibility", null);
+                // TODO - background
+                // background
+                //     .attr("d", path)
+                //     .transition()
+                //     .delay(500)
+                //     .duration(0)
+                //     .attr("visibility", null);
             }));
 
 
-    //console.log(dimensions);
     // Add an axis and title.
 
     g.append("g")
@@ -244,14 +229,24 @@ function fillPC(data) {
             }
         }
 
-        foreground.style("display", function (d) {
+        foreground.attr("class", function (d) {
             return dimensions.every(function (p, i) {
                 if (extents[i][0] == 0 && extents[i][0] == 0) {
                     return true;
                 }
                 return extents[i][1] <= d[p] && d[p] <= extents[i][0];
-            }) ? null : "none";
+            }) ? metaData.pc.colors[d.indexFile] : "notSelected";
         });
+
+        // TODO - background
+        // foreground.style("display", function (d) {
+        //     return dimensions.every(function (p, i) {
+        //         if (extents[i][0] == 0 && extents[i][0] == 0) {
+        //             return true;
+        //         }
+        //         return extents[i][1] <= d[p] && d[p] <= extents[i][0];
+        //     }) ? null : "none";
+        // });
     }
 }
 
@@ -286,15 +281,11 @@ var toShow = new Set();
 
 
 function addFile(e) {
-    console.log(uploadBtn.files);
-    console.log("added !");
-    console.log("Length of file input : " + uploadBtn.files.length);
 
     // Parcourir les fichiers en input avec boucle
     var fin = idxFile + uploadBtn.files.length;
     for (var i = 0, len = uploadBtn.files.length; i < len; i++) {
         var file = uploadBtn.files[i];
-//            console.log(file);
         var reader = new FileReader();
 
         reader.onload = (function (theFile) {
@@ -306,8 +297,6 @@ function addFile(e) {
                         data[j].indexFile = idxFile;
                         //data[j].Datetime = parseTime(data[j].Datetime);
                     }
-                    console.log("Data formatted : ");
-                    console.log(data);
                     // TODO Faire plus rapidement avec une propriété supp sur les points
                     // a exclure lors de la construction des axes
                     // uniquement pour le styling
@@ -323,15 +312,6 @@ function addFile(e) {
                     files.push(info);
                     addRowToList(info);
                     idxFile++;
-                    // TODO On peut pas faire à la sortie du for car
-                    // asynchrone, voir plus propre avec promesses.
-                    if (idxFile === fin) {
-                        // Eviter de clear all et de redessiner
-                        //document.getElementById("graphSpace").innerHTML = "";
-                        console.log(dataAll);
-                        //mySocket.send(JSON.stringify(dataAll));
-                        //fillPC(dataAll);
-                    }
                 });
             };
         })(file);
@@ -403,10 +383,6 @@ function addRowToList(info) {
     tdCheckBox.id = "cb_" + info.indexFile;
     tdCheckBox.checked = true;
     toShow.add(info.indexFile);
-    console.log("Update Checkbox");
-
-    console.log(toShow);
-    // Add eventListener
     tdCheckBox.addEventListener("click", function(e){
         if(toShow.has(info.indexFile)){
             toShow.delete(info.indexFile);
@@ -414,7 +390,6 @@ function addRowToList(info) {
         else{
             toShow.add(info.indexFile);
         }
-        console.log(toShow);
     });
 
     // Add Bin
@@ -449,8 +424,8 @@ function plotSelectedFiles(e){
         metaData.pc.colors[key] = colorClassesPath[idColor];
         idColor = (idColor + 1) % colorClassesPath.length;
     });
-    dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+    let dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
     //mySocket.send(JSON.stringify(dataToShow));
-    sendPreprocessingRequest(dataAll);
+    sendPreprocessingRequest(dataToShow);
 
 }
