@@ -32,13 +32,18 @@ window.addEventListener("load", function() {
     dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
         evt.preventDefault();
     };
-    uploadBtn.onchange = function () {
+    uploadBtn.onchange = function (e) {
+        console.log("onchange");
+        console.log(e);
         console.log(this.value)
 //        uploadFile.value = this.value;
+        uploadFile.value = uploadBtn.files.length > 1 ? uploadBtn.files.length + " files selected" : uploadBtn.files.length + " file selected";
+
     };
     dropContainer.ondrop = function (evt) {
         // REALLY UGLY SORRY REMI :D
-        uploadFile.value = evt.dataTransfer.files.length + " files selected";
+        console.log("ondrop");
+        console.log(evt)
         console.log(uploadFile.value);
 
         uploadBtn.files = evt.dataTransfer.files;
@@ -281,6 +286,7 @@ var toShow = new Set();
 
 
 function addFile(e) {
+    console.log(uploadBtn.files);
     console.log("added !");
     console.log("Length of file input : " + uploadBtn.files.length);
 
