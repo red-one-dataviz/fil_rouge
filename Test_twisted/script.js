@@ -28,6 +28,8 @@ window.addEventListener("load", function() {
 
     btnStart = document.getElementById("startPlot");
     listFilesBody = document.querySelector("#listFiles tbody");
+    listColSelectedName = document.querySelector("#colSelected thead");
+    listColSelected = document.querySelector("#colSelected tbody");
 
     dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
         evt.preventDefault();
@@ -283,7 +285,8 @@ for (var i=colorClassesPath.length; i--;) {
 var limits = [0];
 
 
-var toShow = new Set();
+var filesToShow = new Set();
+var colToShow = new Set();
 
 
 
@@ -313,9 +316,11 @@ function addFile(e) {
                     let info = {
                         'name': theFile.name,
                         'nbLines': data.length,
-                        'data': e.target.result,
+                        'data': data,
+//                        'data': e.target.result,
                         'indexFile': idxFile
                     };
+                    console.log(info);
                     files.push(info);
                     addRowToList(info);
                     idxFile++;
@@ -326,12 +331,13 @@ function addFile(e) {
     }
 }
 
-function sendPreprocessingRequest(data) {
+function sendPreprocessingRequest(data, colToShowArray) {
     var msg = {
         "task": "preprocess",
         "data": data,
         "date": Date.now(),
-        "idReq": getIdReq()
+        "idReq": getIdReq(),
+        "columns": colToShowArray
     };
     mySocket.send(JSON.stringify(msg));
 }
@@ -349,7 +355,7 @@ function fillCells() {
             metaData.pc.cellColors[prop].className = "";
         }
     }
-    for (let id of toShow) {
+    for (let id of filesToShow) {
         // TODO - on peut faire mieux que ça
         metaData.pc.cellColors[id].classList.add(metaData.pc.colors[id].slice(0, -4));
     }
@@ -362,6 +368,51 @@ function removeRow(id) {
             tr.parentNode.removeChild(tr);
         }
     }
+}
+
+function selectColumns(info){
+    const tr = document.createElement("tr");
+    const trCB = document.createElement("tr");
+
+    // Get column names
+    let dimensions = d3.keys(info.data[0]);
+    let index = dimensions.indexOf("date time");
+    let t = dimensions[0];
+    dimensions[0] = dimensions[index];
+    dimensions[index] = t;
+
+    for (let d of dimensions){
+        colToShow.add(d);
+        if (d != "indexFile"){
+            const thFeature = document.createElement("th")
+            thFeature.innerHTML = d;
+            tr.appendChild(thFeature);
+
+            // Add CheckBox
+            const tdCheckBox = document.createElement("td");
+            const checkBox = document.createElement("input");
+            checkBox.type = "checkbox";
+            checkBox.id = "cb_" + d;
+            checkBox.checked = true;
+            checkBox.addEventListener("click", function(e){
+            console.log("clicking : " + d);
+                if(colToShow.has(d)){
+                    console.log("removing : "+ d);
+                    colToShow.delete(d);
+                }
+                else{
+                console.log("adding : " + d);
+                    colToShow.add(d);
+                    }
+                });
+            tdCheckBox.appendChild(checkBox)
+            trCB.appendChild(tdCheckBox);
+
+        }
+    }
+
+    listColSelectedName.appendChild(tr);
+    listColSelected.appendChild(trCB);
 }
 
 function addRowToList(info) {
@@ -389,13 +440,13 @@ function addRowToList(info) {
     tdCheckBox.type = "checkbox";
     tdCheckBox.id = "cb_" + info.indexFile;
     tdCheckBox.checked = true;
-    toShow.add(info.indexFile);
+    filesToShow.add(info.indexFile);
     tdCheckBox.addEventListener("click", function(e){
-        if(toShow.has(info.indexFile)){
-            toShow.delete(info.indexFile);
+        if(filesToShow.has(info.indexFile)){
+            filesToShow.delete(info.indexFile);
         }
         else{
-            toShow.add(info.indexFile);
+            filesToShow.add(info.indexFile);
         }
     });
 
@@ -406,12 +457,12 @@ function addRowToList(info) {
     btnBin.clicked = false;
     btnBin.addEventListener("click", function(e){
         dataAll = dataAll.filter(el => (el.indexFile !== info.indexFile));
-        if(toShow.has(info.indexFile)){
-            toShow.delete(info.indexFile);
+        if(filesToShow.has(info.indexFile)){
+            filesToShow.delete(info.indexFile);
         }
         removeRow(info.indexFile);
         // document.getElementById("graphSpace").innerHTML = "";
-        // var dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+        // var dataToShow = dataAll.filter(el => filesToShow.has(el.indexFile));
         // mySocket.send(JSON.stringify(dataToShow));
     });
 
@@ -420,6 +471,10 @@ function addRowToList(info) {
     tr.appendChild(btnBin);
 
     listFilesBody.appendChild(tr)
+
+    if (info.indexFile === 0){
+        selectColumns(info);
+    }
 }
 
 function plotSelectedFiles(e){
@@ -427,12 +482,17 @@ function plotSelectedFiles(e){
     document.getElementById("graphSpace").innerHTML = "";
     metaData.pc.colors = {};
     let idColor = 0;
-    toShow.forEach(function(key){
+    filesToShow.forEach(function(key){
         metaData.pc.colors[key] = colorClassesPath[idColor];
         idColor = (idColor + 1) % colorClassesPath.length;
     });
-    let dataToShow = dataAll.filter(el => toShow.has(el.indexFile));
+    let dataToShow = dataAll.filter(el => filesToShow.has(el.indexFile));
     //mySocket.send(JSON.stringify(dataToShow));
-    sendPreprocessingRequest(dataToShow);
+
+
+    let colToShowArray = Array.from(colToShow);
+    console.log(colToShowArray);
+    console.log(dataToShow)
+    sendPreprocessingRequest(dataToShow, colToShowArray);
 
 }
