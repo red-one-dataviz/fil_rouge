@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>title</title>
+  </head>
+  <body>
+  	<h1> Yo </h1>
+    <button id="test">Test</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script>
+      // Pour server.py, ne marche pas encore
+//      var testBtn = document.getElementById("test");
+//      testBtn.addEventListener("click", function(e) {
+//          console.log("Alors !");
+//          $.ajax({
+//            url: "http://localhost:9001/get_client_count",
+//            dataType: "jsonp",
+//            success: function(data) {
+//                $("#client_count_div").html("There are " + data.client_count + " clients connected as of " + data.time + ".");
+//        }});
+//      }, false);
+
+      window.addEventListener("load", function() {
+        // Crée l'instance WebSocket
+        var mySocket = new WebSocket("ws://localhost:8080/ws");
+        // Ecoute pour les messages arrivant
+        mySocket.onmessage = function (event) {
+            var output = document.getElementById("output");
+            // Message reçu
+            console.log("Reçu : " + event.data);
+        };
+        var testBtn = document.getElementById("test");
+        testBtn.addEventListener("click", function(e) {
+            mySocket.send("click");
+        })
+    });
+    </script>
+  </body>
+</html>
