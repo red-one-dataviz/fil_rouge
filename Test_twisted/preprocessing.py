@@ -48,3 +48,8 @@ def create_json(df):
 def create_dict(df):
     dict = df.to_dict(orient='records')
     return dict
+
+# Select columns
+def select_columns(df, columns):
+    print("COLUMNS :", columns)
+    return df[columns]

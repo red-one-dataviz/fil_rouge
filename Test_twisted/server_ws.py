@@ -36,11 +36,13 @@ def handle_msg(msg):
     print("Text message received")
     print("Request : " + request['task'])
     print("Request emitted by client at " + str(request['date']))
+    print(request['columns'])
     if request['task'] == "preprocess":
         return json.dumps({'idReq': request['idReq'],
-                           'data': preprocess(request['data']),
+                           'data': preprocess(request['data'], request['columns']),
                            'date': request['date'],
-                           'task': request['task']})
+                           'task': request['task']}
+                            )
     elif request['task'] == "sayHello":
         return json.dumps({'idReq': request['idReq'],
                            'data': "Hello",
@@ -48,14 +50,16 @@ def handle_msg(msg):
                            'task': request['task']})
 
 
-def preprocess(data):
+def preprocess(data, columns):
     df = create_df2(data)
     print("Columns in the original data :")
     print(df.columns.values)
-    df = remove_categorical_var2(df)
+    # df = remove_categorical_var2(df)
+
+    df_selected = select_columns(df, columns)
     print("Columns in the returned data :")
-    print(df.columns.values)
-    return create_dict(df)
+    print(df_selected.columns.values)
+    return create_dict(df_selected)
 
 
 if __name__ == '__main__':
