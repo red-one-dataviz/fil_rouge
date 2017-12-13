@@ -183,21 +183,25 @@ svg {
 .limePath {
     fill: none;
     stroke: lime;
+    stroke-opacity: 0.3;
 }
 
 .hotPinkPath {
     fill: none;
     stroke: hotpink;
+    stroke-opacity: 0.3;
 }
 
 .deepSkyBluePath {
     fill: none;
     stroke: deepskyblue;
+    stroke-opacity: 0.3;
 }
 
 .orangePath {
     fill: none;
     stroke: orange;
+    stroke-opacity: 0.3;
 }
 
 .notSelected {
