@@ -59,7 +59,11 @@ def preprocess(data, columns):
     df_selected = select_columns(df, columns)
     print("Columns in the returned data :")
     print(df_selected.columns.values)
-    return create_dict(df_selected)
+
+    df_initialized = initialize_datetime(df_selected)
+    print("Initialize date time with the first value")
+    print(df_initialized.head())
+    return create_dict(df_initialized)
 
 
 if __name__ == '__main__':

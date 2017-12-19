@@ -25,6 +25,8 @@ window.addEventListener("load", function() {
     uploadBtn = document.getElementById("uploadBtn");
     uploadFile = document.getElementById("uploadFile");
     btnAddFile = document.getElementById("addFile");
+    slider = document.getElementById("range");
+    valOpa = document.getElementById("valOpa");
 
     btnStart = document.getElementById("startPlot");
     listFilesBody = document.querySelector("#listFiles tbody");
@@ -47,6 +49,15 @@ window.addEventListener("load", function() {
     btnAddFile.addEventListener("click", addFile, false);
 
     btnStart.addEventListener("click", plotSelectedFiles, false);
+    valOpa.innerHTML = slider.value;
+
+    slider.addEventListener("input", function() {
+        if(parseInt(this.value) !== parseInt(valOpa.innerHTML)){
+            valOpa.innerHTML = this.value;
+            d3.selectAll("path")
+            .style("stroke-opacity", this.value / 100);
+        }
+    }, false);
 
 });
 var margin = {top: 110, right: 10, bottom: 10, left: 50},
@@ -54,7 +65,8 @@ var margin = {top: 110, right: 10, bottom: 10, left: 50},
     height = 600 - margin.top - margin.bottom;
 
 function fillPC(data) {
-    var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
+//    var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
+    var parseTime = d3.timeParse("%H:%M:%S")
     for(let d of data){
         d["date time"] = parseTime(d["date time"]);
     }
@@ -125,6 +137,7 @@ function fillPC(data) {
         .attr("class", function (d, i) {
             return metaData.pc.colors[d.indexFile];
         })
+        .style("stroke-opacity", parseInt(valOpa.innerHTML)/100)
         .attr("d", path);
 
     // Add a group element for each dimension.
@@ -178,7 +191,8 @@ function fillPC(data) {
         .each(function (d, i) {
             let ax = d3.axisLeft(y[d]);
             if(d === "date time"){
-                ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%Y-%m-%d %H:%M:%S"));
+                ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%H:%M:%S"));
+//                ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%Y-%m-%d %H:%M:%S"));
             }
             d3.select(this).call(ax);
         })

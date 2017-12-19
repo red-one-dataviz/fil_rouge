@@ -6,7 +6,10 @@ body {
     color: white;
 }
 
-/** FILE INPUT **/
+
+/*********************************************
+ * FILE INPUT
+ *********************************************/
 .fileUpload {
     position: relative;
     overflow: hidden;
@@ -19,8 +22,9 @@ body {
     border-color: #4c4c4c;
     border-style: dashed;
     border-width: 1px;
+    /*opacity: 0.6;*/
     height: 200px;
-    width: 200px;
+    width: 500px;
     text-align: center;
 }
 
@@ -45,7 +49,8 @@ body {
     font-family: Arial;
     font-weight: bold;
     font-size: 100px;
-    color: #FE57A1
+    /*color: #FE57A1*/
+    color: #00a3cc;
 }
 
 #uploadFile {
@@ -61,15 +66,15 @@ body {
     color: #585858;
 }
 
-/* ENF FILE INPUT **/
-
-/** BUTTONS **/
+/*********************************************
+ * BUTTONS
+ *********************************************/
 .btn-1 {
-    background-color: #FE57A1;
+    background-color: #00a3cc;
 }
 
 .btn-1 .round {
-    background-color: #FE89bd;
+    background-color: #1ad1ff;
 }
 
 .btn {
@@ -145,7 +150,10 @@ body {
     left: 12%;
 }
 
-/** END BUTTONS **/
+
+/*********************************************
+ * COLORS IN GRAPH
+ *********************************************/
 
 .lime {
     background-color: lime;
@@ -231,4 +239,22 @@ svg {
     fill: white;
     font-size: 12px;
     cursor: move;
+}
+
+/*********************************************
+ * TABULAR
+ *********************************************/
+
+#colSelected {
+    margin-top: 50px;
+    font-family: arial;
+    font-size: 14px;
+    color: #fff;
+}
+
+#listFiles {
+    margin-top: 50px;
+    font-family: arial;
+    font-size: 12px;
+    color: #fff;
 }
