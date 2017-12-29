@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<script src="script.js"></script>
+<meta charset="utf-8">
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+
+<body>
+<!-- FANCY FILE INPUT -->
+<div class="fileUpload" id="dropContainer">
+    <span class="custom-span">+</span>
+    <p class="custom-para">Ajouter un fichier</p>
+    <input id="uploadBtn" type="file" class="upload"/>
+    <!--<div id="dropContainer"></div>-->
+</div>
+<input id="uploadFile" placeholder="0 files selected" disabled="disabled" style="border:1px solid black;margin-left:auto;margin-right:auto;margin-bottom:10px;height:20px;width:200px"/>
+
+<!-- END FANCY FILE INPUT -->
+
+
+<!-- FANCY BUTTON -->
+<div class="type-1">
+    <div>
+        <button id="addFile" href="" class="btn btn-1">
+            <span class="txt">Ajouter</span>
+            <span class="round"><i class="fa fa-chevron-right"></i></span>
+        </button>
+    </div>
+</div>
+<!-- END FANCY BUTTON -->
+
+
+<!-- FANCY BUTTON -->
+<div class="type-1">
+    <div>
+        <button id="startPlot" href="" class="btn btn-1">
+            <span class="txt">Start</span>
+            <span class="round"><i class="fa fa-chevron-right"></i></span>
+        </button>
+    </div>
+</div>
+<title>Zoom + Pan</title>
+<div id="graphSpace">
+
+</div>
+<table id="listFiles">
+    <thead>
+    <tr>
+        <th>Nom du fichier</th>
+        <th>Nombre de lignes</th>
+        <th>Couleur</th>
+        <th>Display</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<table id="colSelected">
+    <thead>
+
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<div class="buttons">
+    <button data-zoom="+1">Zoom In</button>
+    <button data-zoom="-1">Zoom Out</button>
+</div>
+<script src="//d3js.org/d3.v3.min.js"></script>
+
+
