@@ -1,3 +1,5 @@
+let line1;
+let line2;
 let circles;
 
 // set the dimensions and margins of the graph
@@ -34,6 +36,10 @@ let brush = d3.brushX()
     .extent([[0,0], [width, height]])
     .on("brush end", brushed);
 
+let brushSc = d3.brush()
+    .extent([[0,0], [widthSc, heightSc]])
+    .on("brush end", brushedSc);
+
 
 // LINE CHART
 // append the svg object to the body of the page
@@ -57,17 +63,17 @@ let context = svg.append("g")
 // append the svg object to the body of the page
 // appends a 'group' element to 'svg'
 // moves the 'group' element to the top left margin
-let svg_scatter = d3.select("body").append("svg")
+let svgSc = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom);
 
-svg_scatter .append("defs").append("clipPath")
+svgSc .append("defs").append("clipPath")
     .attr("id", "clip")
     .append("rect")
-    .attr("width", width)
-    .attr("height", height);
+    .attr("width", widthSc)
+    .attr("height", heightSc);
 
-let context_scatter  = svg_scatter .append("g")
+let contextSc  = svgSc .append("g")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
@@ -83,30 +89,34 @@ d3.csv("data.csv", function(error, data) {
         d["altitude"] = +d["altitude"];
     });
 
+    // LINE CHART
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) { return d["date time"] ; }));
     y.domain([0, d3.max(data, function(d) {
         return Math.max(d["fuel flow"] , d["altitude"] ); })]);
 
+    // SCATTER PLOT
     // Scale the range of the data
     xSc.domain([0, d3.max(data, function(d) {
         return d["fuel flow"]; })]);
     ySc.domain([0, d3.max(data, function(d) {
         return d["altitude"]; })]);
 
+    // LINE CHART
     // Add the valueline path.
-    context.append("path")
+    line1= context.append("path")
         .data([data])
         .attr("class", "line")
         .attr("clip-path", "url(#clip)")
+        .style("stroke", "steelblue")
         .attr("d", valueline);
 
     // Add the valueline2 path.
-    context.append("path")
+    line2 = context.append("path")
         .data([data])
         .attr("class", "line")
         .attr("clip-path", "url(#clip)")
-        .style("stroke", "red")
+        .style("stroke", "indianred")
         .attr("d", valueline2);
 
     // Add the X Axis
@@ -122,7 +132,8 @@ d3.csv("data.csv", function(error, data) {
         .attr("class", "brush")
         .call(brush);
 
-    circles  = context_scatter.selectAll("circle")
+    // SCATTER PLOT
+    circles  = contextSc.selectAll("circle")
         .data(data)
         .enter().append("circle")
         .attr("cx", function (d) {
@@ -135,13 +146,17 @@ d3.csv("data.csv", function(error, data) {
         .attr("fill", "mediumaquamarine");
 
     // Add the X Axis
-    context_scatter.append("g")
+    contextSc.append("g")
         .attr("transform", "translate(0," + heightSc + ")")
         .call(d3.axisBottom(xSc));
 
     // Add the Y Axis
-    context_scatter.append("g")
+    contextSc.append("g")
         .call(d3.axisLeft(ySc));
+
+    contextSc.append("g")
+        .attr("class", "brush")
+        .call(brushSc);
 
 });
 
@@ -150,16 +165,27 @@ function colorSelectedPts(lims) {
         if(x(d["date time"]) >= lims[0] && x(d["date time"]) <= lims[1]) {
             return "mediumaquamarine";
         } else {
-            return "darkorange";
+            return "gray";
         }
     })
+}
+
+function colorSelectedSegment(lims) {
+    //TODO
+    console.log("kikoo brush");
+    console.log(lims)
 }
 
 
 function brushed() {
     let selection = d3.event.selection || [0, width];
-    let lims = selection.map(a => x.invert(a));
+    // let lims = selection.map(a => x.invert(a));
     // console.log(lims);
     // colorSelectedPts(lims)
     colorSelectedPts(selection)
+}
+
+function brushedSc() {
+    let selection = d3.event.selection || [0, widthSc];
+    colorSelectedSegment(selection)
 }
