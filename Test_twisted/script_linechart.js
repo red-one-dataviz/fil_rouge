@@ -1,5 +1,3 @@
-let line1;
-let line2;
 let circles;
 
 // set the dimensions and margins of the graph
@@ -55,6 +53,10 @@ svg.append("defs").append("clipPath")
     .attr("width", width)
     .attr("height", height);
 
+let contextBack = svg.append("g")
+    .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
 let context = svg.append("g")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
@@ -104,7 +106,7 @@ d3.csv("data.csv", function(error, data) {
 
     // LINE CHART
     // Add the valueline path.
-    line1= context.append("path")
+    context.append("path")
         .data([data])
         .attr("class", "line")
         .attr("clip-path", "url(#clip)")
@@ -112,7 +114,7 @@ d3.csv("data.csv", function(error, data) {
         .attr("d", valueline);
 
     // Add the valueline2 path.
-    line2 = context.append("path")
+    context.append("path")
         .data([data])
         .attr("class", "line")
         .attr("clip-path", "url(#clip)")
@@ -172,8 +174,61 @@ function colorSelectedPts(lims) {
 
 function colorSelectedSegment(lims) {
     //TODO
-    console.log("kikoo brush");
-    console.log(lims)
+    let x0 = lims[0][0],
+        x1 = lims[1][0],
+        y0 = lims[0][1],
+        y1 = lims[1][1];
+
+    let brushed = circles.filter(function (){
+        let cx = d3.select(this).attr("cx"),
+            cy = d3.select(this).attr("cy");
+
+        return (x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1);
+    });
+
+    // Dates arrays. We suppose they are sorted
+    let s = brushed._groups[0].map(u => x(u.__data__["date time"]));
+    let all = circles._groups[0].map(u => x(u.__data__["date time"]));
+
+    console.log(s.length, all.length);
+    // console.log(all);
+
+    let j = 0;
+    let intervals = [];
+
+    let debut = -1;
+    let fin = -1;
+    for (let i=0; i<all.length; i++){
+        if (all[i] === s[j]){
+            if (debut === -1){
+                debut = i===0 ? all[i] : (all[i] + all[i-1])/2;
+                console.log(debut);
+            }
+            fin = i===all.length - 1 ? all[i] : (all[i] + all[i+1]) / 2;
+            j++;
+        } else{
+            if (debut !== -1){
+                intervals.push({deb: debut, fin: fin});
+                debut = -1;
+                fin = -1;
+            }
+        }
+    }
+    if (debut !== -1){
+        intervals.push({deb: debut, fin: fin});
+    }
+    console.log(intervals);
+
+    let rectTimes = contextBack.selectAll(".rectTime");
+    rectTimes.remove();
+    for (let inter of intervals) {
+        contextBack.append("rect")
+            .attr("class", "rectTime")
+            .attr("x", inter.deb)
+             .attr("y", 0)
+             .attr("width", inter.fin - inter.deb)
+             .attr("height", height)
+    }
 }
 
 
