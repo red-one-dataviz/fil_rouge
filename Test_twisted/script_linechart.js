@@ -110,7 +110,7 @@ d3.csv("data.csv", function(error, data) {
         .data([data])
         .attr("class", "line")
         .attr("clip-path", "url(#clip)")
-        .style("stroke", "steelblue")
+        .style("stroke", "hotpink")
         .attr("d", valueline);
 
     // Add the valueline2 path.
@@ -118,7 +118,7 @@ d3.csv("data.csv", function(error, data) {
         .data([data])
         .attr("class", "line")
         .attr("clip-path", "url(#clip)")
-        .style("stroke", "indianred")
+        .style("stroke", "lime")
         .attr("d", valueline2);
 
     // Add the X Axis
@@ -145,7 +145,7 @@ d3.csv("data.csv", function(error, data) {
             return ySc(d["altitude"]);
         })
         .attr("r", 4)
-        .attr("fill", "mediumaquamarine");
+        .attr("fill", "orange");
 
     // Add the X Axis
     contextSc.append("g")
@@ -165,7 +165,7 @@ d3.csv("data.csv", function(error, data) {
 function colorSelectedPts(lims) {
     circles.attr("fill", function (d) {
         if(x(d["date time"]) >= lims[0] && x(d["date time"]) <= lims[1]) {
-            return "mediumaquamarine";
+            return "orange";
         } else {
             return "gray";
         }
