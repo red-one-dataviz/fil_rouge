@@ -19,6 +19,26 @@
         shape-rendering: crispEdges;
     }
 
+    .firstAxis text {
+        fill: hotpink;
+        font-size: 12px;
+        cursor: move;
+    }
+
+    .secondAxis text {
+        fill: lime;
+        font-size: 12px;
+        cursor: move;
+    }
+
+    .firstLabel {
+        fill: hotpink;
+    }
+
+    .secondLabel {
+        fill: lime;
+    }
+
     text {
         fill: white;
         font-size: 12px;
@@ -46,6 +66,18 @@
         stroke-opacity: 0.6;
         stroke-width: 2;
         stroke: darkorange;
+    }
+
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        width: 80px;
+        height: 28px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
     }
 </style>
 <body>
