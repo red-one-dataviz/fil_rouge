@@ -11,7 +11,7 @@ let marginSc = {top: 20, right: 20, bottom: 50, left: 50},
 
 // parse the date / time
 let parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-var formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+let formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
 
 // set the ranges
 let x = d3.scaleTime().range([0, width]);
@@ -57,6 +57,21 @@ let context = svg.append("g")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
+let tooltipLine = context.append('line');
+let tipBox;
+
+// CHECKBOX
+function createCheckbox(){
+    let checkbox = document.getElementById('checkbox');
+    checkbox.type = "checkbox";
+    checkbox.name = "name";
+    checkbox.id = "idCheckbox";
+    checkbox.checked = false;
+}
+
+createCheckbox();
+let checked = false;
+
 // SCATTER PLOT
 // append the svg object to the body of the page
 // appends a 'group' element to 'svg'
@@ -74,9 +89,6 @@ svgSc.append("defs").append("clipPath")
 let contextSc = svgSc.append("g")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
-
-let tooltipLine = context.append('line');
-let tipBox;
 
 // Get the data
 d3.csv("data.csv", function (error, data) {
@@ -206,12 +218,22 @@ d3.csv("data.csv", function (error, data) {
         .attr("class", "secondLabel")
         .text(traits[1]);
 
-    tipBox = context.append('rect')
-        .attr('width', width)
-        .attr('height', height)
-        .attr('opacity', 0)
-        .on('mousemove', drawTooltip)
-        .on('mouseout', removeTooltip);
+    document.getElementById("idCheckbox").addEventListener("click", function(e) {
+        if (checked === false) {
+            console.log("Tooltip");
+            tipBox = context.append('rect')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('opacity', 0)
+                .on('mousemove', drawTooltip)
+                .on('mouseout', removeTooltip);
+            checked = true;
+        } else{
+            console.log("Brush");
+            tipBox.remove();
+            checked = false;
+        }
+    });
 
     // SCATTER PLOT
     circles = contextSc.selectAll("circle")
@@ -260,10 +282,11 @@ d3.csv("data.csv", function (error, data) {
         .attr("class", "brush")
         .call(brushSc);
 
+
     // TOOLTIP FUNCTIONS
     function removeTooltip() {
         if (tooltip) tooltip.style('display', 'none');
-        if (tooltipLine) tooltipLine.attr('stroke', 'none');
+        if (tooltipLine) tooltipLine.attr('stroke', 'none').style("opacity", 0);
     }
 
     function drawTooltip() {
@@ -275,7 +298,8 @@ d3.csv("data.csv", function (error, data) {
             .attr('x1', x(datetime))
             .attr('x2', x(datetime))
             .attr('y1', 0)
-            .attr('y2', height);
+            .attr('y2', height)
+            .style("opacity", 0.9);
 
         tooltip.html(formatTime(datetime))
             .style("opacity", .9)
