@@ -58,19 +58,7 @@ let context = svg.append("g")
         "translate(" + margin.left + "," + margin.top + ")");
 
 let tooltipLine = context.append('line');
-let tipBox;
 
-// CHECKBOX
-function createCheckbox(){
-    let checkbox = document.getElementById('checkbox');
-    checkbox.type = "checkbox";
-    checkbox.name = "name";
-    checkbox.id = "idCheckbox";
-    checkbox.checked = false;
-}
-
-createCheckbox();
-let checked = false;
 
 // SCATTER PLOT
 // append the svg object to the body of the page
@@ -90,6 +78,8 @@ let contextSc = svgSc.append("g")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
 
+let drawTooltip;
+
 // Get the data
 d3.csv("data.csv", function (error, data) {
     console.log(data);
@@ -100,6 +90,7 @@ d3.csv("data.csv", function (error, data) {
         return d !== "date time";
     });
     // n = traits.length;
+    console.log(traits);
 
     // format the data
     data.forEach(function (d) {
@@ -195,9 +186,7 @@ d3.csv("data.csv", function (error, data) {
         .attr("class", "secondAxis")
         .call(d3.axisRight(yRight));
 
-    context.append("g")
-        .attr("class", "brush")
-        .call(brush);
+
 
     // text label for the y axis
     context.append("text")
@@ -217,23 +206,6 @@ d3.csv("data.csv", function (error, data) {
         .style("text-anchor", "middle")
         .attr("class", "secondLabel")
         .text(traits[1]);
-
-    document.getElementById("idCheckbox").addEventListener("click", function(e) {
-        if (checked === false) {
-            console.log("Tooltip");
-            tipBox = context.append('rect')
-                .attr('width', width)
-                .attr('height', height)
-                .attr('opacity', 0)
-                .on('mousemove', drawTooltip)
-                .on('mouseout', removeTooltip);
-            checked = true;
-        } else{
-            console.log("Brush");
-            tipBox.remove();
-            checked = false;
-        }
-    });
 
     // SCATTER PLOT
     circles = contextSc.selectAll("circle")
@@ -289,14 +261,27 @@ d3.csv("data.csv", function (error, data) {
         if (tooltipLine) tooltipLine.attr('stroke', 'none').style("opacity", 0);
     }
 
-    function drawTooltip() {
-        let datetime = x.invert(d3.mouse(tipBox.node())[0]);
+    drawTooltip = function() {
+        // console.log(event);
+        let x_mouse = d3.mouse(tippi.node())[0];
+        // let x_mouse = event.offsetX;
+        let datetime = x.invert(d3.mouse(tippi.node())[0]);
 
         let datetimeCompare = formatTime(datetime);
 
+        let minD = data[0];
+        let min = Math.abs(x(minD["date time"]) - x_mouse);
+        for(let d of data) {
+            let val = Math.abs(x(d["date time"]) - x_mouse);
+            if (val < min) {
+                min = val;
+                minD = d;
+            }
+        }
+
         tooltipLine.attr('stroke', 'white')
-            .attr('x1', x(datetime))
-            .attr('x2', x(datetime))
+            .attr('x1', x(minD["date time"]))
+            .attr('x2', x(minD["date time"]))
             .attr('y1', 0)
             .attr('y2', height)
             .style("opacity", 0.9);
@@ -306,13 +291,17 @@ d3.csv("data.csv", function (error, data) {
             .style("display", "block")
             .style("left", (d3.event.pageX + 20) + "px")
             .style("top", (d3.event.pageY - 20) + "px")
-            .selectAll()
-            .data(data).enter()
             .append('div')
-            .html(d => formatTime(d["date time"]) === datetimeCompare ? traits[0] + " : " + d[traits[0]] : null)
+            .html(traits[0] + " : " + minD[traits[0]])
             .append('div')
-            .html(d => formatTime(d["date time"]) === datetimeCompare ? traits[1] + " : " + d[traits[1]] : null);
-    }
+            .html(traits[1] + " : " + minD[traits[1]]);
+    };
+
+    let tippi = context.append("g")
+        .on('mousemove', drawTooltip)
+        .on('mouseout', removeTooltip)
+        .attr("class", "brush")
+        .call(brush);
 
 });
 
@@ -390,7 +379,8 @@ function brushed() {
     // let lims = selection.map(a => x.invert(a));
     // console.log(lims);
     // colorSelectedPts(lims)
-    colorSelectedPts(selection)
+    colorSelectedPts(selection);
+    drawTooltip();
 }
 
 function brushedSc() {
