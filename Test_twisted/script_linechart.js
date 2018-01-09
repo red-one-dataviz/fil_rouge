@@ -70,7 +70,6 @@ function createCheckbox(){
 }
 
 createCheckbox();
-let checked = false;
 
 // SCATTER PLOT
 // append the svg object to the body of the page
@@ -219,7 +218,7 @@ d3.csv("data.csv", function (error, data) {
         .text(traits[1]);
 
     document.getElementById("idCheckbox").addEventListener("click", function(e) {
-        if (checked === false) {
+        if (document.getElementById("idCheckbox").checked) {
             console.log("Tooltip");
             tipBox = context.append('rect')
                 .attr('width', width)
@@ -227,11 +226,9 @@ d3.csv("data.csv", function (error, data) {
                 .attr('opacity', 0)
                 .on('mousemove', drawTooltip)
                 .on('mouseout', removeTooltip);
-            checked = true;
         } else{
             console.log("Brush");
             tipBox.remove();
-            checked = false;
         }
     });
 
