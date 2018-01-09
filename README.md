@@ -1,4 +1,5 @@
-## Bienvenue sur la page du Projet Fil_Rouge TELECOMPARISTECH
+## Bienvenue sur la branche "Christophe" du Projet Fil_Rouge TELECOMPARISTECH
 
-You can use the [editor on GitHub](https://github.com/red-one-dataviz/fil_rouge/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Pour l'instant, version de l'outil de visualisation "Parallel Coordinates" avec :
+- effet de zoom dans le fenètre de données (à tester avec souris "scroll" et sous Windows
 
