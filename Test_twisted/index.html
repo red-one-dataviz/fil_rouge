@@ -5,6 +5,14 @@
 <link href="style.css" rel="stylesheet">
 
 <body>
+
+<!-- OLD FILE INPUT -->
+<!-- <div id="dropContainer" style="border:1px solid black;height:100px;">
+    Drop Here
+</div> -->
+
+<!-- <input type="file" id="fileInput"/> -->
+
 <!-- FANCY FILE INPUT -->
 <div class="fileUpload" id="dropContainer">
     <span class="custom-span">+</span>
@@ -16,6 +24,8 @@
 
 <!-- END FANCY FILE INPUT -->
 
+<!--OLD BUTTON-->
+<!--<button id=" addFile">Ajouter</button>...-->
 
 <!-- FANCY BUTTON -->
 <div class="type-1">
@@ -29,16 +39,6 @@
 <!-- END FANCY BUTTON -->
 
 
-<!-- FANCY BUTTON -->
-<div class="type-1">
-    <div>
-        <button id="startPlot" href="" class="btn btn-1">
-            <span class="txt">Start</span>
-            <span class="round"><i class="fa fa-chevron-right"></i></span>
-        </button>
-    </div>
-</div>
-<title>Zoom + Pan</title>
 <div id="graphSpace">
 
 </div>
@@ -62,10 +62,16 @@
     <tbody>
     </tbody>
 </table>
-<div class="buttons">
-    <button data-zoom="+1">Zoom In</button>
-    <button data-zoom="-1">Zoom Out</button>
+
+
+<!-- FANCY BUTTON -->
+<div class="type-1">
+    <div>
+        <button id="startPlot" href="" class="btn btn-1">
+            <span class="txt">Start</span>
+            <span class="round"><i class="fa fa-chevron-right"></i></span>
+        </button>
+    </div>
 </div>
-<script src="//d3js.org/d3.v3.min.js"></script>
-
-
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script src="script.js"></script>

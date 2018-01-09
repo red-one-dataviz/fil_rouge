@@ -72,9 +72,9 @@ function fillPC(data) {
     var svg = d3.select("#graphSpace").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-        .call(d3.zoom().on("wheel.zoom", function () {
-            svg.attr("transform", d3.event.transform)
-        }))
+        .call(d3.zoom().on("zoom", function () {
+        svg.attr("transform", d3.event.transform)
+    }))
         .append("g");
 
     // Extract the list of dimensions and create a scale for each.
