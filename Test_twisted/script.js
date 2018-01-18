@@ -156,6 +156,32 @@ function fillPC(data) {
 
     let queueAxisLineChart = [];
 
+
+    // TODO - pas super propre faire avec des classes !
+    function addToQueue(text, d) {
+
+        if (queueAxisLineChart.length >= 2) {
+            let old = queueAxisLineChart.shift();
+            old.text.style.fill = "white";
+            queueAxisLineChart[0].text.style.fill = "hotpink";
+        }
+        queueAxisLineChart.push({
+            text: text,
+            d: d
+        });
+        if (queueAxisLineChart.length === 1) {
+            text.style.fill = "hotpink";
+        } else {
+            text.style.fill = "lime";
+            drawSelectedAxis();
+        }
+
+        // if (queueAxisLineChart.length === 2) {
+        //
+        // }
+        // console.log(queueAxisLineChart)
+    }
+
     var g = svg.selectAll(".dimension")
         .data(dimensions)
         .enter().append("g")
@@ -165,11 +191,7 @@ function fillPC(data) {
         })
         .on('click', function(d) {
             console.log(event);
-            if (queueAxisLineChart.length >= 2) {
-                queueAxisLineChart.shift();
-            }
-            queueAxisLineChart.push(d);
-            console.log(queueAxisLineChart)
+            addToQueue(event.target, d);
         })
         .call(d3.drag()
             .subject(function (d) {
@@ -207,7 +229,8 @@ function fillPC(data) {
 
     // Add an axis and title.
     drawSelectedAxis = function() {
-        drawLineChart(data, queueAxisLineChart);
+        let traits = [queueAxisLineChart[0].d, queueAxisLineChart[1].d];
+        drawLineChart(data, traits);
     };
 
     g.append("g")
