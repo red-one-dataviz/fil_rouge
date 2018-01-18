@@ -1,12 +1,15 @@
 // TODO - sale, refaire la gestion de la concurrence
-var mySocket;
-var dropContainer;
-var uploadBtn;
-var uploadFile;
-var btnStart;
-var btnAddFile;
-var btnLineChart;
-var drawSelectedAxis;
+let mySocket;
+let dropContainer;
+let uploadBtn;
+let uploadFile;
+let btnStart;
+let btnLineChart;
+let drawSelectedAxis;
+let slider;
+let valOpa;
+let listColSelectedName;
+let listColSelected
 
 window.addEventListener("load", function() {
     // Crée l'instance WebSocket
@@ -26,7 +29,7 @@ window.addEventListener("load", function() {
     dropContainer = document.getElementById("dropContainer");
     uploadBtn = document.getElementById("uploadBtn");
     uploadFile = document.getElementById("uploadFile");
-    btnAddFile = document.getElementById("addFile");
+    // btnAddFile = document.getElementById("addFile");
     slider = document.getElementById("range");
     valOpa = document.getElementById("valOpa");
 
@@ -39,17 +42,25 @@ window.addEventListener("load", function() {
     dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
         evt.preventDefault();
     };
+
     uploadBtn.onchange = function (e) {
         uploadFile.value = uploadBtn.files.length > 1 ? uploadBtn.files.length + " files selected" : uploadBtn.files.length + " file selected";
 
+        // Directly load data (no use of a button anymore)
+        addFile(uploadBtn.files);
     };
+
     dropContainer.ondrop = function (evt) {
         uploadBtn.files = evt.dataTransfer.files;
         evt.preventDefault();
+
+        // Directly load data (no use of a button anymore)
+        // console.log(evt.dataTransfer.files);
+        // addFile(evt.dataTransfer.files);
     };
 
     //btnAddFile.addEventListener("pointerdown", addFile, false);
-    btnAddFile.addEventListener("click", addFile, false);
+    // btnAddFile.addEventListener("click", addFile, false);
 
     btnStart.addEventListener("click", plotSelectedFiles, false);
     valOpa.innerHTML = slider.value;
@@ -70,35 +81,35 @@ function createLineChart() {
     drawSelectedAxis();
 }
 
-var margin = {top: 110, right: 10, bottom: 10, left: 50},
+let margin = {top: 110, right: 10, bottom: 10, left: 50},
     width = 1200 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 
 function fillPC(data) {
 //    var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
-    var parseTime = d3.timeParse("%H:%M:%S")
+    let parseTime = d3.timeParse("%H:%M:%S")
     for(let d of data){
         d["date time"] = parseTime(d["date time"]);
     }
     fillCells();
-    var x = d3.scaleBand().rangeRound([0, width]).padding(1),
+    let x = d3.scaleBand().rangeRound([0, width]).padding(1),
         y = {},
         dragging = {};
 
-    var line = d3.line(),
+    let line = d3.line(),
         extents,
         background,
         foreground;
 
 
-    var svg = d3.select("#graphSpace").append("svg")
+    let svg = d3.select("#graphSpace").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // Extract the list of dimensions and create a scale for each.
-    dimensions = d3.keys(data[0]).filter(function (d, i) {
+    let dimensions = d3.keys(data[0]).filter(function (d, i) {
         // TODO - dégueux
         if(d === 'date time'){
             return(y[d] = d3.scaleTime()
@@ -136,8 +147,8 @@ function fillPC(data) {
 
 
     // Add blue foreground lines for focus.
-    var idColor = 0;
-    var lastId = data[0].indexFile;
+    let idColor = 0;
+    let lastId = data[0].indexFile;
     foreground = svg.append("g")
         .attr("class", "foreground")
         .selectAll("path")
@@ -156,7 +167,7 @@ function fillPC(data) {
 
     let queueAxisLineChart = [];
 
-    var g = svg.selectAll(".dimension")
+    let g = svg.selectAll(".dimension")
         .data(dimensions)
         .enter().append("g")
         .attr("class", "dimension")
@@ -690,16 +701,16 @@ function drawLineChart(data, traits) {
 }
 
 
-var files = [];
-var idxFile = 0;
-var dataAll = [];
+let files = [];
+let idxFile = 0;
+let dataAll = [];
 // TODO
-var metaData= {};
+let metaData= {};
 metaData.pc = {};
 metaData.pc.cellColors = {};
 
 
-var colorClasses = [
+let colorClasses = [
     "lime",
     "deepSkyBlue",
     "hotPink",
@@ -707,26 +718,26 @@ var colorClasses = [
 ];
 
 // Attempt to create colorClassesPath
-var colorClassesPath = colorClasses.slice(0);
-for (var i=colorClassesPath.length; i--;) {
+let colorClassesPath = colorClasses.slice(0);
+for (let i=colorClassesPath.length; i--;) {
     colorClassesPath[i] = colorClasses[i] + "Path";
 }
 
-var limits = [0];
+let limits = [0];
 
 
-var filesToShow = new Set();
-var colToShow = new Set();
+let filesToShow = new Set();
+let colToShow = new Set();
 
 
 
 function addFile(e) {
 
     // Parcourir les fichiers en input avec boucle
-    var fin = idxFile + uploadBtn.files.length;
-    for (var i = 0, len = uploadBtn.files.length; i < len; i++) {
-        var file = uploadBtn.files[i];
-        var reader = new FileReader();
+    let fin = idxFile + uploadBtn.files.length;
+    for (let i = 0, len = uploadBtn.files.length; i < len; i++) {
+        let file = uploadBtn.files[i];
+        let reader = new FileReader();
 
         reader.onload = (function (theFile) {
             return function (e) {
@@ -762,7 +773,7 @@ function addFile(e) {
 }
 
 function sendPreprocessingRequest(data, colToShowArray) {
-    var msg = {
+    let msg = {
         "task": "preprocess",
         "data": data,
         "date": Date.now(),
@@ -772,7 +783,7 @@ function sendPreprocessingRequest(data, colToShowArray) {
     mySocket.send(JSON.stringify(msg));
 }
 
-var idReq = 0;
+let idReq = 0;
 
 function getIdReq() {
     return idReq++;
