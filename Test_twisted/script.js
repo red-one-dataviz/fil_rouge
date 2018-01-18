@@ -4,14 +4,14 @@ let dropContainer;
 let uploadBtn;
 let uploadFile;
 let btnStart;
-let btnLineChart;
+// let btnLineChart;
 let drawSelectedAxis;
 let slider;
 let valOpa;
 let listColSelectedName;
 let listColSelected
 
-window.addEventListener("load", function() {
+window.addEventListener("load", function () {
     // Crée l'instance WebSocket
     mySocket = new WebSocket("ws://localhost:9000");
     // Ecoute pour les messages arrivant
@@ -22,7 +22,7 @@ window.addEventListener("load", function() {
         console.log("Reçu : ");
         console.log(res);
         console.log("Traitement de la requète en " + time + " ms");
-        if(res.task === "preprocess") {
+        if (res.task === "preprocess") {
             fillPC(res.data);
         }
     };
@@ -37,7 +37,7 @@ window.addEventListener("load", function() {
     listFilesBody = document.querySelector("#listFiles tbody");
     listColSelectedName = document.querySelector("#colSelected thead");
     listColSelected = document.querySelector("#colSelected tbody");
-    btnLineChart = document.getElementById("btnLineChart");
+    // btnLineChart = document.getElementById("btnLineChart");
 
     dropContainer.ondragover = dropContainer.ondragenter = function (evt) {
         evt.preventDefault();
@@ -65,15 +65,15 @@ window.addEventListener("load", function() {
     btnStart.addEventListener("click", plotSelectedFiles, false);
     valOpa.innerHTML = slider.value;
 
-    slider.addEventListener("input", function() {
-        if(parseInt(this.value) !== parseInt(valOpa.innerHTML)){
+    slider.addEventListener("input", function () {
+        if (parseInt(this.value) !== parseInt(valOpa.innerHTML)) {
             valOpa.innerHTML = this.value;
             d3.selectAll(".foreground path:not(.notSelected)")
-            .style("stroke-opacity", this.value / 100);
+                .style("stroke-opacity", this.value / 100);
         }
     }, false);
 
-    btnLineChart.addEventListener("click", createLineChart, false);
+    // btnLineChart.addEventListener("click", createLineChart, false);
 
 });
 
@@ -87,8 +87,8 @@ let margin = {top: 110, right: 10, bottom: 10, left: 50},
 
 function fillPC(data) {
 //    var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S")
-    let parseTime = d3.timeParse("%H:%M:%S")
-    for(let d of data){
+    let parseTime = d3.timeParse("%H:%M:%S");
+    for (let d of data) {
         d["date time"] = parseTime(d["date time"]);
     }
     fillCells();
@@ -98,9 +98,8 @@ function fillPC(data) {
 
     let line = d3.line(),
         extents,
-        background,
+        // background,
         foreground;
-
 
     let svg = d3.select("#graphSpace").append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -108,17 +107,18 @@ function fillPC(data) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+
     // Extract the list of dimensions and create a scale for each.
     let dimensions = d3.keys(data[0]).filter(function (d, i) {
         // TODO - dégueux
-        if(d === 'date time'){
-            return(y[d] = d3.scaleTime()
+        if (d === 'date time') {
+            return (y[d] = d3.scaleTime()
                 .domain(d3.extent(data, function (p) {
                     return p[d];
                 }))
                 .range([height, 15]));
         }
-        if(d !== 'indexFile'){
+        if (d !== 'indexFile') {
 
             return (y[d] = d3.scaleLinear()
                 .domain(d3.extent(data, function (p) {
@@ -158,7 +158,7 @@ function fillPC(data) {
         .attr("class", function (d, i) {
             return metaData.pc.colors[d.indexFile];
         })
-        .style("stroke-opacity", parseInt(valOpa.innerHTML)/100)
+        .style("stroke-opacity", parseInt(valOpa.innerHTML) / 100)
         .attr("d", path);
 
     // Add a group element for each dimension.
@@ -169,27 +169,29 @@ function fillPC(data) {
 
     // TODO - pas super propre faire avec des classes !
     function addToQueue(text, d) {
+        if (dimensions.includes(text.innerHTML)) {
+            console.log(text.innerHTML);
+            if (queueAxisLineChart.length >= 2) {
+                let old = queueAxisLineChart.shift();
+                old.text.style.fill = "white";
+                queueAxisLineChart[0].text.style.fill = "hotpink";
+            }
+            queueAxisLineChart.push({
+                text: text,
+                d: d
+            });
+            if (queueAxisLineChart.length === 1) {
+                text.style.fill = "hotpink";
+            } else {
+                text.style.fill = "lime";
+                drawSelectedAxis();
+            }
 
-        if (queueAxisLineChart.length >= 2) {
-            let old = queueAxisLineChart.shift();
-            old.text.style.fill = "white";
-            queueAxisLineChart[0].text.style.fill = "hotpink";
+            // if (queueAxisLineChart.length === 2) {
+            //
+            // }
+            // console.log(queueAxisLineChart)
         }
-        queueAxisLineChart.push({
-            text: text,
-            d: d
-        });
-        if (queueAxisLineChart.length === 1) {
-            text.style.fill = "hotpink";
-        } else {
-            text.style.fill = "lime";
-            drawSelectedAxis();
-        }
-
-        // if (queueAxisLineChart.length === 2) {
-        //
-        // }
-        // console.log(queueAxisLineChart)
     }
 
     let g = svg.selectAll(".dimension")
@@ -199,7 +201,7 @@ function fillPC(data) {
         .attr("transform", function (d) {
             return "translate(" + x(d) + ")";
         })
-        .on('click', function(d) {
+        .on('click', function (d) {
             console.log(event);
             addToQueue(event.target, d);
         })
@@ -238,7 +240,7 @@ function fillPC(data) {
 
 
     // Add an axis and title.
-    drawSelectedAxis = function() {
+    drawSelectedAxis = function () {
         let traits = [queueAxisLineChart[0].d, queueAxisLineChart[1].d];
         drawLineChart(data, traits);
     };
@@ -247,7 +249,7 @@ function fillPC(data) {
         .attr("class", "axis")
         .each(function (d, i) {
             let ax = d3.axisLeft(y[d]);
-            if(d === "date time"){
+            if (d === "date time") {
                 ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%H:%M:%S"));
 //                ax = d3.axisLeft(y[d]).tickFormat(d3.timeFormat("%Y-%m-%d %H:%M:%S"));
             }
@@ -272,17 +274,20 @@ function fillPC(data) {
         .attr("class", "brush")
         .each(function (d) {
             d3.select(this)
+                .on("click", clickedBrush)
                 .call(y[d].brush = d3.brushY()
                     .extent([[-8, 0], [8, height]])
                     .on("brush start", brushstart)
                     .on("brush", brush_parallel_chart));
+
         })
         .selectAll("rect")
         .attr("x", -8)
         .attr("width", 16);
 
+
     function position(d) {
-        var v = dragging[d];
+        let v = dragging[d];
         return v == null ? x(d) : v;
     }
 
@@ -297,21 +302,33 @@ function fillPC(data) {
         }));
     }
 
+    function clickedBrush() {
+        console.log(d3.event.target);
+        console.log(y);
+        for (let i = 0; i < dimensions.length; ++i) {
+        }
+    }
+
     function brushstart() {
+        brush_parallel_chart(false)
         d3.event.sourceEvent.stopPropagation();
     }
 
-    function brush_parallel_chart() {
-        for (var i = 0; i < dimensions.length; ++i) {
-            if (d3.event.target == y[dimensions[i]].brush) {
+    function brush_parallel_chart(arg) {
+        let idx = -1;
+        for (let i = 0; i < dimensions.length; ++i) {
+            if (d3.event.target === y[dimensions[i]].brush) {
                 extents[i] = d3.event.selection.map(y[dimensions[i]].invert, y[dimensions[i]]);
-
+                idx = i;
             }
         }
 
+        if (!arg) {
+            extents[idx] = [0, 0]
+        }
         foreground.attr("class", function (d) {
             return dimensions.every(function (p, i) {
-                if (extents[i][0] == 0 && extents[i][0] == 0) {
+                if (extents[i][0] === 0 && extents[i][0] === 0) {
                     return true;
                 }
                 return extents[i][1] <= d[p] && d[p] <= extents[i][0];
@@ -522,7 +539,6 @@ function drawLineChart(data, traits) {
         .call(d3.axisRight(yRight));
 
 
-
     // text label for the y axis
     context.append("text")
         .attr("transform", "rotate(-90)")
@@ -596,7 +612,7 @@ function drawLineChart(data, traits) {
         if (tooltipLine) tooltipLine.attr('stroke', 'none').style("opacity", 0);
     }
 
-    drawTooltip = function() {
+    drawTooltip = function () {
         // console.log(event);
         let x_mouse = d3.mouse(tippi.node())[0];
         // let x_mouse = event.offsetX;
@@ -606,7 +622,7 @@ function drawLineChart(data, traits) {
 
         let minD = data[0];
         let min = Math.abs(x(minD["date time"]) - x_mouse);
-        for(let d of data) {
+        for (let d of data) {
             let val = Math.abs(x(d["date time"]) - x_mouse);
             if (val < min) {
                 min = val;
@@ -727,7 +743,7 @@ let files = [];
 let idxFile = 0;
 let dataAll = [];
 // TODO
-let metaData= {};
+let metaData = {};
 metaData.pc = {};
 metaData.pc.cellColors = {};
 
@@ -741,7 +757,7 @@ let colorClasses = [
 
 // Attempt to create colorClassesPath
 let colorClassesPath = colorClasses.slice(0);
-for (let i=colorClassesPath.length; i--;) {
+for (let i = colorClassesPath.length; i--;) {
     colorClassesPath[i] = colorClasses[i] + "Path";
 }
 
@@ -750,7 +766,6 @@ let limits = [0];
 
 let filesToShow = new Set();
 let colToShow = new Set();
-
 
 
 function addFile(e) {
@@ -826,14 +841,14 @@ function fillCells() {
 
 function removeRow(id) {
     let trs = document.getElementsByClassName("affPc");
-    for(let tr of trs) {
-        if(tr.index === id) {
+    for (let tr of trs) {
+        if (tr.index === id) {
             tr.parentNode.removeChild(tr);
         }
     }
 }
 
-function selectColumns(info){
+function selectColumns(info) {
     const tr = document.createElement("tr");
     const trCB = document.createElement("tr");
 
@@ -844,9 +859,9 @@ function selectColumns(info){
     dimensions[0] = dimensions[index];
     dimensions[index] = t;
 
-    for (let d of dimensions){
+    for (let d of dimensions) {
         colToShow.add(d);
-        if (d != "indexFile"){
+        if (d !== "indexFile") {
             const thFeature = document.createElement("th")
             thFeature.innerHTML = d;
             tr.appendChild(thFeature);
@@ -857,17 +872,17 @@ function selectColumns(info){
             checkBox.type = "checkbox";
             checkBox.id = "cb_" + d;
             checkBox.checked = true;
-            checkBox.addEventListener("click", function(e){
-            console.log("clicking : " + d);
-                if(colToShow.has(d)){
-                    console.log("removing : "+ d);
+            checkBox.addEventListener("click", function (e) {
+                console.log("clicking : " + d);
+                if (colToShow.has(d)) {
+                    console.log("removing : " + d);
                     colToShow.delete(d);
                 }
-                else{
-                console.log("adding : " + d);
+                else {
+                    console.log("adding : " + d);
                     colToShow.add(d);
-                    }
-                });
+                }
+            });
             tdCheckBox.appendChild(checkBox)
             trCB.appendChild(tdCheckBox);
 
@@ -904,11 +919,11 @@ function addRowToList(info) {
     tdCheckBox.id = "cb_" + info.indexFile;
     tdCheckBox.checked = true;
     filesToShow.add(info.indexFile);
-    tdCheckBox.addEventListener("click", function(e){
-        if(filesToShow.has(info.indexFile)){
+    tdCheckBox.addEventListener("click", function (e) {
+        if (filesToShow.has(info.indexFile)) {
             filesToShow.delete(info.indexFile);
         }
-        else{
+        else {
             filesToShow.add(info.indexFile);
         }
     });
@@ -918,9 +933,9 @@ function addRowToList(info) {
     btnBin.type = "button";
     btnBin.innerHTML = "Remove";
     btnBin.clicked = false;
-    btnBin.addEventListener("click", function(e){
+    btnBin.addEventListener("click", function (e) {
         dataAll = dataAll.filter(el => (el.indexFile !== info.indexFile));
-        if(filesToShow.has(info.indexFile)){
+        if (filesToShow.has(info.indexFile)) {
             filesToShow.delete(info.indexFile);
         }
         removeRow(info.indexFile);
@@ -933,19 +948,19 @@ function addRowToList(info) {
     tr.appendChild(tdCheckBox);
     tr.appendChild(btnBin);
 
-    listFilesBody.appendChild(tr)
+    listFilesBody.appendChild(tr);
 
-    if (info.indexFile === 0){
+    if (info.indexFile === 0) {
         selectColumns(info);
     }
 }
 
-function plotSelectedFiles(e){
+function plotSelectedFiles(e) {
     // TODO : plot selected files from checkboxes
     document.getElementById("graphSpace").innerHTML = "";
     metaData.pc.colors = {};
     let idColor = 0;
-    filesToShow.forEach(function(key){
+    filesToShow.forEach(function (key) {
         metaData.pc.colors[key] = colorClassesPath[idColor];
         idColor = (idColor + 1) % colorClassesPath.length;
     });
@@ -955,7 +970,7 @@ function plotSelectedFiles(e){
 
     let colToShowArray = Array.from(colToShow);
     console.log(colToShowArray);
-    console.log(dataToShow)
+    console.log(dataToShow);
     sendPreprocessingRequest(dataToShow, colToShowArray);
 
 }

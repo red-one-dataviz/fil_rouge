@@ -46,6 +46,6 @@ Check the file you want to show
 Click on Start
 
 ## Others : existing issues
-- We can't cancel a selection for the moment, we need to brush an entire axis to color all the lines again.
+- ~We can't cancel a selection for the moment, we need to brush an entire axis to color all the lines again.~~~
 - The program is relatively fine for files with less than 4000 lines, but above that limit it starts slowing.
-- If we brush then move the column we just brushed the brushing stop.
+- If we brush then move the column we just brushed the brushing stops.
