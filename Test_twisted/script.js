@@ -5,6 +5,10 @@ var uploadBtn;
 var uploadFile;
 var btnStart;
 var btnAddFile;
+var btnResample;
+var slider;
+var output_pourcentage;
+var output_ligne_selec;
 
 window.addEventListener("load", function() {
     // Crée l'instance WebSocket
@@ -27,6 +31,7 @@ window.addEventListener("load", function() {
     btnAddFile = document.getElementById("addFile");
 
     btnStart = document.getElementById("startPlot");
+    // btnResample = document.getElementById("resampleAllFiles");
     listFilesBody = document.querySelector("#listFiles tbody");
     listColSelectedName = document.querySelector("#colSelected thead");
     listColSelected = document.querySelector("#colSelected tbody");
@@ -36,12 +41,24 @@ window.addEventListener("load", function() {
     };
     uploadBtn.onchange = function (e) {
         uploadFile.value = uploadBtn.files.length > 1 ? uploadBtn.files.length + " files selected" : uploadBtn.files.length + " file selected";
-
     };
     dropContainer.ondrop = function (evt) {
         uploadBtn.files = evt.dataTransfer.files;
         evt.preventDefault();
     };
+
+    slider = document.getElementById("myRange");
+    output_pourcentage = document.getElementById("demo");
+    output_pourcentage.innerHTML = slider.value; // Display the default slider value
+
+    output_ligne_selec = document.getElementById("demo_ligne");
+    output_ligne_selec.innerHTML = Math.trunc(slider.value * dataAll.length / 100);
+// Update the current slider value (each time you drag the slider handle)
+    slider.oninput = function() {
+        output_pourcentage.innerHTML = this.value;
+        output_ligne_selec.innerHTML = Math.trunc(this.value * dataAll.length / 100);
+    }
+
 
     //btnAddFile.addEventListener("pointerdown", addFile, false);
     btnAddFile.addEventListener("click", addFile, false);
@@ -313,6 +330,7 @@ function addFile(e) {
                     // Un peu dégueu
                     limits.push(limits[limits.length - 1] + data.length);
                     dataAll = dataAll.concat(data);
+                    output_ligne_selec.innerHTML = Math.trunc(slider.value * dataAll.length / 100);
                     let info = {
                         'name': theFile.name,
                         'nbLines': data.length,
@@ -331,13 +349,14 @@ function addFile(e) {
     }
 }
 
-function sendPreprocessingRequest(data, colToShowArray) {
+function sendPreprocessingRequest(data, colToShowArray,resampleValue) {
     var msg = {
         "task": "preprocess",
         "data": data,
         "date": Date.now(),
         "idReq": getIdReq(),
-        "columns": colToShowArray
+        "columns": colToShowArray,
+        "resamplingNum": resampleValue
     };
     mySocket.send(JSON.stringify(msg));
 }
@@ -450,6 +469,8 @@ function addRowToList(info) {
         }
     });
 
+
+
     // Add Bin
     const btnBin = document.createElement("button");
     btnBin.type = "button";
@@ -482,6 +503,7 @@ function plotSelectedFiles(e){
     document.getElementById("graphSpace").innerHTML = "";
     metaData.pc.colors = {};
     let idColor = 0;
+    let resampleValue = Math.trunc(slider.value * dataAll.length / 100);
     filesToShow.forEach(function(key){
         metaData.pc.colors[key] = colorClassesPath[idColor];
         idColor = (idColor + 1) % colorClassesPath.length;
@@ -491,8 +513,28 @@ function plotSelectedFiles(e){
 
 
     let colToShowArray = Array.from(colToShow);
+
     console.log(colToShowArray);
     console.log(dataToShow)
-    sendPreprocessingRequest(dataToShow, colToShowArray);
+    sendPreprocessingRequest(dataToShow, colToShowArray, resampleValue);
 
 }
+/*
+function resampleAllFiles(e){
+    // resample and plot graph
+    document.getElementById("graphSpace").innerHTML = "";
+    let resampleValue = slider.value;
+    metaData.pc.colors = {};
+    let idColor = 0;
+    filesToShow.forEach(function(key){
+        metaData.pc.colors[key] = colorClassesPath[idColor];
+        idColor = (idColor + 1) % colorClassesPath.length;
+    });
+    let dataToShow = dataAll.filter(el => filesToShow.has(el.indexFile));
+    //mySocket.send(JSON.stringify(dataToShow));
+    let colToShowArray = Array.from(colToShow);
+    console.log(colToShowArray);
+    console.log(dataToShow)
+    sendPreprocessingRequest(dataToShow, colToShowArray, resampleValue);
+}
+*/

@@ -1,5 +1,5 @@
 import pandas as pd
-
+import random
 
 # Create DataFrame from JSON file
 def create_df(json_str):
@@ -53,3 +53,11 @@ def create_dict(df):
 def select_columns(df, columns):
     print("COLUMNS :", columns)
     return df[columns]
+
+
+# select ramdomly 1000 lines of the dataFrame df without replacement
+def uniform_random_sampling(df, resamplingNum):
+    list_datetime = []
+    list_datetime = list(random.sample(df.index.tolist(), resamplingNum))#1000
+    df_sampled = df.iloc[list_datetime]
+    return df_sampled

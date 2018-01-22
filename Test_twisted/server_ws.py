@@ -39,7 +39,7 @@ def handle_msg(msg):
     print(request['columns'])
     if request['task'] == "preprocess":
         return json.dumps({'idReq': request['idReq'],
-                           'data': preprocess(request['data'], request['columns']),
+                           'data': preprocess(request['data'], request['columns'], request['resamplingNum']),
                            'date': request['date'],
                            'task': request['task']}
                             )
@@ -50,12 +50,13 @@ def handle_msg(msg):
                            'task': request['task']})
 
 
-def preprocess(data, columns):
+def preprocess(data, columns,resamplingNum):
     df = create_df2(data)
     print("Columns in the original data :")
     print(df.columns.values)
     # df = remove_categorical_var2(df)
-
+    if df.shape[0] >= int(resamplingNum):
+        df = uniform_random_sampling(df, int(resamplingNum))
     df_selected = select_columns(df, columns)
     print("Columns in the returned data :")
     print(df_selected.columns.values)
