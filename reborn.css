@@ -1,0 +1,25 @@
+.trActive {
+    background-color: crimson;
+}
+
+#container {
+    display: grid;
+    grid-template-columns: 50% auto;
+    grid-column-gap: 5px;
+}
+
+#leftPane {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    background-color: #dddddd;
+}
+
+#rightPane {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    background-color: #BDBDBD;
+}
+
+#selectedFiles {
+    position: fixed;
+}
