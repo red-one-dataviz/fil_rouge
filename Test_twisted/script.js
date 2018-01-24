@@ -210,22 +210,34 @@ function fillPC(data) {
                 return {x: x(d)};
             })
             .on("start", function (d) {
+                // console.log(extents);
                 dragging[d] = x(d);
                 // TODO - background
                 // background.attr("visibility", "hidden");
             })
             .on("drag", function (d) {
+                let id1 = dimensions.indexOf(d);
                 dragging[d] = Math.min(width, Math.max(0, d3.event.x));
                 foreground.attr("d", path);
+                // console.log(dimensions);
                 dimensions.sort(function (a, b) {
                     return position(a) - position(b);
                 });
+                let id2 = dimensions.indexOf(d);
+                if(id1 !== id2) {
+                    console.log("Changé : " + id1 + " -> " + id2);
+                    let a = extents[id1];
+                    let b = extents[id2];
+                    extents[id2] = [a[0], a[1]];
+                    extents[id1] = [b[0], b[1]];
+                }
                 x.domain(dimensions);
                 g.attr("transform", function (d) {
                     return "translate(" + position(d) + ")";
                 })
             })
             .on("end", function (d) {
+                // console.log(extents);
                 delete dragging[d];
                 transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
                 transition(foreground).attr("d", path);
@@ -304,28 +316,41 @@ function fillPC(data) {
 
     function clickedBrush() {
         console.log(d3.event.target);
-        console.log(y);
-        for (let i = 0; i < dimensions.length; ++i) {
-        }
+        // brush_parallel_chart(false);
+
     }
 
     function brushstart() {
-        brush_parallel_chart(false)
+        console.log(d3.event);
+        brush_parallel_chart(false);
         d3.event.sourceEvent.stopPropagation();
     }
 
+
+
     function brush_parallel_chart(arg) {
         let idx = -1;
+        // dimensions.sort(function (a, b) {
+        //     return position(a) - position(b);
+        // });
+
+        // console.log(d3.event);
+        // console.log(dimensions);
+
         for (let i = 0; i < dimensions.length; ++i) {
             if (d3.event.target === y[dimensions[i]].brush) {
+                console.log(dimensions[i]);
                 extents[i] = d3.event.selection.map(y[dimensions[i]].invert, y[dimensions[i]]);
                 idx = i;
             }
         }
 
+        // console.log(extents);
         if (!arg) {
+            console.log("brushed by false");
             extents[idx] = [0, 0]
         }
+
         foreground.attr("class", function (d) {
             return dimensions.every(function (p, i) {
                 if (extents[i][0] === 0 && extents[i][0] === 0) {
