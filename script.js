@@ -9,7 +9,7 @@ let drawSelectedAxis;
 let slider;
 let valOpa;
 let listColSelectedName;
-let listColSelected
+let listColSelected;
 
 window.addEventListener("load", function () {
     // Crée l'instance WebSocket

@@ -1,3 +1,0 @@
-Twisted==17.9.0
-autobahn==17.10.1
-pandas==0.21.0

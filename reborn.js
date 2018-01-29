@@ -74,3 +74,4 @@ function fillFileList(files, table) {
         tbody.appendChild(tri);
     }
 }
+
