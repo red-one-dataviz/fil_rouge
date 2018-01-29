@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>reveal.js – The HTML Presentation Framework</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/white.css" id="theme">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+        <section>
+            <h1>Projet fil rouge</h1>
+            <h3>Conception d'un outil de visualisation de données temporelles</h3>
+            <p>
+                <small>MS BDG Télécom ParisTech</small>
+                <small>Xavier Charef | Rémi Sanchez | Thai-An Than Trong | Christophe Thibault</small>
+            </p>
+        </section>
+
+
+        <section>
+            <h2>Introduction</h2>
+
+            <ul>
+                <li>Projet proposé par l'entreprise Safran </li>
+                <li>Répond à un problématique réelle</li>
+                <li>Mise en situation : traitement et analyse de données réelles</li>
+
+            </ul>
+        </section>
+
+        <section>
+            <h2>Plan de la présentation</h2>
+
+            <ol>
+                <li>Présentation générale</li>
+                <li>Etat de l'art</li>
+                <li>Déroulement du projet</li>
+                <li>Retour sur le travail réalisé</li>
+            </ol>
+        </section>
+
+        <section>
+            <section>
+                <h2>Présentation générale</h2>
+                <h3>Présentation de l'entreprise Safran</h3>
+                <ul>
+                    <li>Entreprise française spécialisée dans l'aéronautique, le spatial et la défense</li>
+                    <li>Leader industriel mondial</li>
+                    <li>12% du chiffre d'affaire dans la R&D</li>
+                </ul>
+
+            </section>
+
+            <section>
+                <h2>Présentation générale</h2>
+                <h3>Présentation de l'entreprise Safran</h3>
+                <img width="700" height="400" data-src="safranworld.png" alt="diagram">
+            </section>
+
+
+            <section>
+                <h2>Présentation générale</h2>
+                <h3>Safran Tech</h3>
+                <p> Dimension R&T de Safran </p>
+                <p> Département TSI : Technologie et Système d'Information </p>
+                <p> Traitement du signal, analyse de données, visualisation </p>
+            </section>
+
+            <section>
+                <h2>Présentation générale</h2>
+                <h3>Contexte du projet</h3>
+
+                <p> Données de vols d'hélicoptères</p>
+
+                <p> Existence d'un outil de visualisation : NextStep </p>
+
+                <p> Limites : vitesse du traitement des données et des requêtes </p>
+            </section>
+
+            <section>
+                <h2>Présentation générale</h2>
+                <h3>Objectifs</h3>
+                <p>Développement d'un outil de visualisation de données temporelles ... </p>
+
+
+                <p class="fragment">... interactif... </p>
+                <p class="fragment">... fluide ... </p>
+                <p><span class="fragment">... muni de fonctions :</span>
+                    <span class="fragment">filtrage</span>
+                    <span class="fragment"> | zoom</span>
+                    <span class="fragment"> | smoothing</span>
+                </p>
+
+            </section>
+
+            <section>
+                <h2>Présentation générale</h2>
+                <h3>Objectifs</h3>
+                <ul>
+                    <li>Recherche de relations entre les différentes variables </li>
+                    <li>Volonté de suivre l'évolution de ces relations au cours du temps </li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Etat de l'art</h2>
+                <h3>Visualisation de données</h3>
+
+                <img width="560" height="295" data-src="preview.png" alt="diagram">
+            </section>
+
+            <section>
+                <h2>Etat de l'art</h2>
+                <h3>Séries temporelles (Time Series)</h3>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Déroulement du projet</h2>
+                <h3>Données types</h3>
+
+                <p>Données issues de vols d'hélicoptères</p>
+                <!--Remind that data are in CSV format &ndash;&gt; that's cool for python-->
+                <!--<ul>-->
+                    <!--<li> Variable temporelle :  Date et heure</li>-->
+                    <!--<li> Variables quantitatives : pression, altitude, puissance ...</li>-->
+                    <!--<li> Variables qualitatives : phase de vol</li>-->
+                <!--</ul>-->
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Exemples</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Temporelle</td>
+                        <td>date et heure</td>
+                    </tr>
+                    <tr>
+                        <td>Quantitative</td>
+                        <td>pression, altitude, puissance</td>
+                    </tr>
+                    <tr>
+                        <td>Qualitative</td>
+                        <td>phase de vol</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>Déroulement du projet</h2>
+                <h3>Données types</h3>
+
+                <p>Données "propres"</p>
+
+                <p>Peu de preprocessing</p>
+
+                <!--<p>Nombre de lignes par fichier variables (TODO : A PRECISER)</p>-->
+
+
+
+            </section>
+
+            <section>
+                <h2>Déroulement du projet</h2>
+                <h3>Présentation de la solution technique</h3>
+
+                <img width="600" height="400" data-src="Diagramme.001.jpg" alt="diagram">
+
+            </section>
+
+            <section>
+                <h2>Déroulement du projet</h2>
+                <h3>Conception de premières visualisations</h3>
+                <link href="style_linechart.css" rel="stylesheet">
+                <div id="linechart"></div>
+
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Retour sur le travail réalisé</h2>
+                <h3>Organisation du travail</h3>
+
+                <p class="fragment"> <small>Phase 0 : État de l'art et définition de spécifications fonctionnelles</small></p>
+                <p class="fragment"> <small>Phase 1 : Première visualisation fonctionnelle</small></p>
+                <p class="fragment"> <small>Phase 2 : Ajout de graphiques connexes</small></p>
+                <p class="fragment"> <small>Phase 3 : Proposition de nouvelles fonctionnalités / visualisations</small></p>
+
+            </section>
+
+            <section>
+                <h2>Retour sur le travail réalisé</h2>
+                <h3>Organisation du travail</h3>
+
+                <small>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Tâche</th>
+                        <th>Membres</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Visualisation</td>
+                        <td>Xavier, Rémi, Thai-An, Christophe</td>
+                    </tr>
+                    <tr>
+                        <td>Preprocessing</td>
+                        <td>Thai-An</td>
+                    </tr>
+                    <tr>
+                        <td>WebSocket</td>
+                        <td>Rémi</td>
+                    </tr>
+                    <tr>
+                        <td>Random Sampling</td>
+                        <td>Xavier</td>
+                    </tr>
+                    <tr>
+                        <td>Gestion de projet</td>
+                        <td>Christophe</td>
+                    </tr>
+                    </tbody>
+                </table></small>
+
+            </section>
+
+            <section>
+                <h2>Retour sur le travail réalisé</h2>
+                <h3>Gestion de projet</h3>
+
+                Découpage du projet en sprints
+            </section>
+
+
+            <section>
+                <h2>Retour sur le travail réalisé</h2>
+                <h3>Et après ? Planning du travail</h3>
+
+                <ul>
+                    <li>Amélioration des visualisations existantes</li>
+                    <li>Restructuration du rendu</li>
+                    <li>Construction de nouvelles visualisations</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+        </section>
+
+        <section>
+            <h2>Merci de votre attention !</h2>
+        </section>
+
+
+    </div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<script src="linechart.js"></script>
+
+<script>
+
+    // More info https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+            {
+                src: 'lib/js/classList.js', condition: function () {
+                    return !document.body.classList;
+                }
+            },
+            {
+                src: 'plugin/markdown/marked.js', condition: function () {
+                    return !!document.querySelector('[data-markdown]');
+                }
+            },
+            {
+                src: 'plugin/markdown/markdown.js', condition: function () {
+                    return !!document.querySelector('[data-markdown]');
+                }
+            },
+            {
+                src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                    hljs.initHighlightingOnLoad();
+                }
+            },
+            {src: 'plugin/search/search.js', async: true},
+            {src: 'plugin/zoom-js/zoom.js', async: true},
+            {src: 'plugin/notes/notes.js', async: true}
+        ]
+    });
+
+</script>
+
+</body>
+</html>
