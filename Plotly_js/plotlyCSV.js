@@ -15,7 +15,7 @@ Plotly.d3.csv('https://raw.githubusercontent.com/red-one-dataviz/fil_rouge/plotl
         },
 
         dimensions: [{
-            constraintrange: [1000, 1850],
+            constraintrange: [0, 5000],
             range: [0, 8500],
             label: 'flight time',
             values: unpack(rows, 'flight time')
