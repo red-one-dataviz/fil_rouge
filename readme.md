@@ -1,3 +1,3 @@
 <p>Branche PLOTLY - projet Fil rouge SAFRAN DataViz</p>
-Test sur un jeu de données de 11000 lignes approximativement.\\
-Test sur la fluidité
+<p>1. Test sur un jeu de données de 11000 lignes approximativement.</p>
+<p>2. Test sur la fluidité</p>
