@@ -1,0 +1,213 @@
+/* Style the tab */
+.tab {
+    float: left;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    width: 15%;
+    height: 750px;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    display: block;
+    background-color: inherit;
+    color: black;
+    padding: 22px 16px;
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current "tab button" class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    float: left;
+    padding: 0px 12px;
+    border: 1px solid #ccc;
+    width: 80%;
+    border-left: none;
+    height: 750px;
+    display: none;
+}
+
+#addFiles {
+    display: block;
+}
+
+/* ADD FILES */
+.trActive {
+    background-color: crimson;
+}
+
+.trDisabled {
+    background-color: mediumaquamarine;
+}
+
+#container {
+    display: grid;
+    grid-template-columns: 50% auto;
+    grid-column-gap: 5px;
+}
+
+#leftPane {
+    grid-column-start: 1;
+    grid-column-end: 1;
+    background-color: #dddddd;
+}
+
+#rightPane {
+    grid-column-start: 2;
+    grid-column-end: 2;
+    background-color: #BDBDBD;
+}
+
+.fixedDiv {
+    position: fixed;
+}
+
+#lscpContainer {
+    width: 100%;
+    height: 100%;
+}
+
+/* LINE CHART + SCATTER PLOT */
+
+.firstAxis text {
+    fill: hotpink;
+    font-size: 12px;
+    cursor: move;
+}
+
+.secondAxis text {
+    fill: lime;
+    font-size: 12px;
+    cursor: move;
+}
+
+.firstLabel {
+    fill: hotpink;
+}
+
+.secondLabel {
+    fill: lime;
+}
+
+text {
+    fill: black;
+    font-size: 12px;
+    cursor: move;
+}
+
+.line {
+    fill: none;
+    stroke-width: 2px;
+}
+
+.brush .extent {
+    stroke: black;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+}
+
+circle {
+    fill-opacity: 0.7;
+}
+
+.rectTime {
+    fill-opacity: 0.5;
+    fill: orange;
+    stroke-opacity: 0.6;
+    stroke-width: 2;
+    stroke: darkorange;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 80px;
+    height: 28px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+}
+
+.grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+}
+
+.grid path {
+    stroke-width: 0;
+}
+
+.colored {
+    fill: orange;
+}
+
+.uncolored {
+    fill: grey;
+}
+
+/* The side navigation menu */
+.sidenav {
+    height: 100%; /* 100% Full-height */
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Stay on top */
+    top: 0; /* Stay at the top */
+    right: 0;
+    background-color: #111; /* Black*/
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 60px; /* Place content 60px from the top */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+/* The navigation menu links */
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav select {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 12px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+    margin-left: 15px;
+    margin-bottom: 15px;
+}
+
+/* When you mouse over the navigation links, change their color */
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}

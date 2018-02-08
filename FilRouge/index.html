@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Test</title>
+</head>
+<body>
+    <div class="tab">
+        <button id="addFilesTab" class="tablinks active">Add Files</button>
+        <button id="drawParallelCoordinatesTab" class="tablinks">Parallel Coordinates</button>
+        <button id="drawLineChartScatterPlotTab" class="tablinks">LineChart & ScatterPlot</button>
+    </div>
+
+    <!--ADD FILES-->
+    <div id="addFiles" class="tabcontent">
+        <div id="container">
+            <div id="leftPane">
+                <input id="import" type="file" webkitdirectory directory multiple/>
+                <table id="fileList">
+                    <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Type</td>
+                        <td>Size</td>
+                        <td>Last modified date</td>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="rightPane">
+                <div class="fixedDiv">
+                    <button id="addSelectedFiles">Add Selected Files</button>
+                    <div style="height: 300px">
+                        Selected Files :
+                        <ul id="selectedFiles">
+                        </ul>
+                    </div>
+                    <div style="height: 300px">
+                        Added Files :
+                        <ul id="addedFiles">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="Paris" class="tabcontent">
+        <h3>Paris</h3>
+        <p>Paris is the capital of France.</p>
+    </div>
+
+    <div id="drawLineChartScatterPlot" class="tabcontent">
+        <div id="mySidenav" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" id="closeNav">&times;</a>
+            <a href="#">Files</a>
+            <select id="selectedAddedFiles"></select>
+            <a href="#">Columns selection</a>
+            <select id="xAxis"></select>
+            <select id="yAxis"></select>
+            <!--<a href="#">Clients</a>-->
+            <!--<a href="#">Contact</a>-->
+        </div>
+
+        <button id="openSideNav">Options</button>
+
+
+        <div id="lscpContainer">
+        </div>
+    </div>
+    <script src="//d3js.org/d3.v4.min.js"></script>
+    <script type="module" src="modules/defaultOptions.js"></script>
+    <script type="module" src="modules/LineChartScatterPlot.js"></script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
