@@ -11,9 +11,7 @@ Plotly.d3.csv('https://raw.githubusercontent.com/red-one-dataviz/fil_rouge/plotl
         line: {
             showscale: true,
             reversescale: true,
-            colorscale: 'Jet',
-            cmin: 0,
-            cmax: 11000,
+            colorscale: 'Jet'
         },
 
         dimensions: [{
