@@ -1,5 +1,6 @@
 // ************************* WEBSOCKET *************************
 import LineChartScatterPlot from "./modules/LineChartScatterPlot.js";
+import ParallelCoords from "./modules/ParallelCoords.js";
 
 let mySocket;
 
@@ -9,52 +10,111 @@ window.addEventListener("load", function () {
     mySocket = new WebSocket("ws://" + addr + ":9000");
     // mySocket = new WebSocket("ws://localhost:9000");
 
+    // Find existing selected files
+    mySocket.onopen = () => sendRequest("addSelectedFiles", JSON.stringify([]));
     // Ecoute pour les messages arrivant
     mySocket.onmessage = function (event) {
-        console.log(event);
         let res = JSON.parse(event.data);
         console.log(res);
         if (res.fct === "addSelectedFiles") {
-            sendRequest("getListFiles");
-            let filesTmp = [];
-            if (res.data === "ok") {
-                for (let i = 0, len = listSelectedFiles.length; i < len; i++) {
-                    let file = listSelectedFiles[i];
-                    console.log(i, file);
-                    listAddedFiles.push(file);
-                    let li = document.createElement("li");
-                    li.className = "addedFile";
-                    li.innerHTML = file.name;
-                    displayAddedFiles.appendChild(li);
-                    filesTmp.push(file);
-                }
-                for (let file of filesTmp) {
-                    updateSelectedFilesList(file, false);
-                }
-                listSelectedFiles.length = 0;
-                filesTmp.length = 0;
-                let activeTrs = document.getElementsByClassName("trActive");
-                let trs = [];
-                for (let tr of activeTrs) {
-                    trs.push(tr);
-                }
-                for (let tr of trs) {
-                    tr.classList.toggle("trActive");
-                    tr.classList.toggle("trDisabled");
-                }
-            }
-        } else if (res.fct === "getListFiles") {
-            console.log(res.data);
-        } else if (res.fct === "getLCSPData") {
+            updateUI(res.data);
+        }
+        // else if (res.fct === "getListFiles") {
+        //     console.log(res.data);
+        // }
+        else if (res.fct === "getLCSPData") {
             fillLineChartScatterPlot(res.data.lcspData, res.data.lcspColumns);
         } else if (res.fct === "getColumnsLCSP") {
             createSelectAxis(res.data);
+        } else if (res.fct === "getPCData") {
+            fillParallelCoordinates(res.data.pcData, res.data.pcColumns);
         }
     };
-    // mySocket.onopen = function () {
-    //     //TODO
-    // }
 });
+
+let state = {
+    files: [],
+    columns: []
+};
+let addedFilesList = document.getElementById("addedFiles");
+let selectedFilesList = document.getElementById("selectedFiles");
+let selectFileLCSP = document.getElementById("selectFileLCSP");
+let selectXAxisLCSP = document.getElementById("xAxisLCSP");
+let selectYAxisLCSP = document.getElementById("yAxisLCSP");
+
+selectFileLCSP.addEventListener("change", function (ev) {
+    sendRequest("getLCSPData", this.value, selectXAxisLCSP.value, selectYAxisLCSP.value);
+});
+
+selectXAxisLCSP.addEventListener("change", function (ev) {
+    let featureX = selectXAxisLCSP.value;
+    let featureY = selectYAxisLCSP.value;
+    let currentFile = selectFileLCSP.value;
+    sendRequest("getLCSPData", currentFile, featureX, featureY);
+});
+
+selectYAxisLCSP.addEventListener("change", function (ev) {
+    let featureX = selectXAxisLCSP.value;
+    let featureY = selectYAxisLCSP.value;
+    let currentFile = selectFileLCSP.value;
+    sendRequest("getLCSPData", currentFile, featureX, featureY);
+});
+
+function updateUI(data) {
+    state.files = data.files;
+    state.columns = data.columns;
+    // mettre à jour la liste des fichiers ajouté sur la tab 1
+    let fileLCSPValue = selectFileLCSP.value;
+    let xAxisLCSPValue = selectXAxisLCSP.value;
+    let yAxisLCSPValue = selectYAxisLCSP.value;
+
+    addedFilesList.innerHTML = "";
+    selectedFilesList.innerHTML = "";
+    selectFileLCSP.innerHTML = "";
+    selectXAxisLCSP.innerHTML = "";
+    selectYAxisLCSP.innerHTML = "";
+    for (let f of state.files) {
+        let li = document.createElement("li");
+        li.className = "addedFile";
+        li.innerHTML = f;
+        addedFilesList.appendChild(li);
+
+        let option = document.createElement("option");
+        option.innerHTML = f;
+        option.value = f;
+        selectFileLCSP.appendChild(option);
+        if (f === fileLCSPValue && f) {
+            selectFileLCSP.value = fileLCSPValue;
+        }
+    }
+    let selectedTRs = document.querySelectorAll(".trActive");
+    for (let tr of selectedTRs) {
+        tr.classList.toggle("trActive");
+        tr.classList.toggle("trDisabled");
+    }
+
+    for (let c of state.columns) {
+        if (c !== "date time" && c !== "idxFile") {
+            let optionX = document.createElement("option");
+            optionX.innerHTML = c;
+            optionX.value = c;
+
+            let optionY = optionX.cloneNode(true);
+
+            selectXAxisLCSP.appendChild(optionX);
+            selectYAxisLCSP.appendChild(optionY);
+            if (c === xAxisLCSPValue && c) {
+                selectXAxisLCSP.value = xAxisLCSPValue;
+            }
+            if (c === yAxisLCSPValue && c) {
+                selectYAxisLCSP.value = yAxisLCSPValue;
+            }
+        }
+    }
+    // mettre à jour le select fichier de LCSP
+    // mettre à jour le select colonnes1 de LCSP
+    // mettre à jour le select colonnes2 de LCSP
+}
 
 function sendRequest(name, data, ...args) {
     let msg = {
@@ -93,7 +153,6 @@ function openCity(evt, cityName) {
 window.addEventListener("load", main);
 
 let listSelectedFiles = [];
-let listAddedFiles = [];
 let displaySelectedFiles;
 let displayAddedFiles;
 let filesToLi = {};
@@ -115,7 +174,8 @@ function setupTabs() {
     });
 
     drawParallelCoordinatesTab.addEventListener("click", function (ev) {
-        openCity(event, 'Paris');
+        openCity(event, 'drawParallelCoordinatesPlot');
+        askPCData();
     });
 
     drawLineChartScatterPlotTab.addEventListener("click", function (ev) {
@@ -133,7 +193,6 @@ function setupListeners() {
 
     importFolder.addEventListener("change", function (ev) {
         let files = ev.path[0].files;
-        console.log(files);
         fillFileList(files, table);
 
     });
@@ -199,8 +258,6 @@ function updateSelectedFilesList(file, val) {
         let idx = listSelectedFiles.indexOf(file);
         listSelectedFiles.splice(idx, 1);
         let liToRM = filesToLi[file.name];
-        console.log(liToRM);
-        console.log(filesToLi);
         displaySelectedFiles.removeChild(liToRM);
     }
 }
@@ -224,7 +281,6 @@ function fillFileList(files, table) {
         tri.addEventListener("mousedown", function () {
             if (!tri.classList.contains("trDisabled")) {
                 let toggle = tri.classList.toggle("trActive");
-                console.log(toggle);
                 updateSelectedFilesList(file, toggle);
             }
         });
@@ -248,78 +304,34 @@ function fillFileList(files, table) {
     }
 }
 
-function askLCSPData(listFilesIdx) {
-    console.log(listFilesIdx[0]);
-    sendRequest("getLCSPData", listFilesIdx[0]);
 
-    let selectedAddedFiles = document.getElementById("selectedAddedFiles");
+// ************************* LINE CHART + SCATTER PLOT *************************
+function askPCData() {
+    sendRequest("getPCData");
+}
 
-    for (let file of listFilesIdx) {
-        let option = document.createElement("option");
-        option.innerHTML = file;
-        option.value = file;
-        selectedAddedFiles.appendChild(option);
-    }
+let pc;
 
-    let selectedXAxis = document.getElementById("xAxis");
-    let selectedYAxis = document.getElementById("yAxis");
-    selectedAddedFiles.addEventListener("change", function (ev) {
-        sendRequest("getLCSPData", this.value, selectedXAxis.value, selectedYAxis.value);
-    });
-    getColumnsLSCP();
+function fillParallelCoordinates(data, cols) {
+    let pcContainer = document.getElementById("pcContainer");
+    pcContainer.innerHTML = "";
+    pc = new ParallelCoords("pcContainer", data);
+}
+
+// ************************* LINE CHART + SCATTER PLOT *************************
+function askLCSPData() {
+    sendRequest("getLCSPData", selectFileLCSP.value);
 }
 
 let lcsp;
 
-// ************************* LINE CHART + SCATTER PLOT *************************
 function fillLineChartScatterPlot(data, cols) {
-    let selectedXAxis = document.getElementById("xAxis");
-    let selectedYAxis = document.getElementById("yAxis");
-    console.log(data);
     let lscpContainer = document.getElementById("lscpContainer");
     lscpContainer.innerHTML = "";
     lcsp = new LineChartScatterPlot("lscpContainer", data, cols);
-    selectedXAxis.value = lcsp.xAxis;
-    selectedYAxis.value = lcsp.yAxis;
+
+    selectXAxisLCSP.value = lcsp.xAxis;
+    selectYAxisLCSP.value = lcsp.yAxis;
+
 }
 
-function getColumnsLSCP() {
-    sendRequest("getColumnsLCSP");
-}
-
-function createSelectAxis(columns) {
-    let selectedXAxis = document.getElementById("xAxis");
-    let selectedYAxis = document.getElementById("yAxis");
-    let selectedFile = document.getElementById("selectedAddedFiles");
-
-
-    for (let col of columns) {
-        if (col !== "date time" && col !== "idxFile") {
-            let optionX = document.createElement("option");
-            optionX.innerHTML = col;
-            optionX.value = col;
-
-            let optionY = optionX.cloneNode(true);
-            selectedXAxis.appendChild(optionX);
-            selectedYAxis.appendChild(optionY);
-        }
-    }
-
-    // TODO : make it automatic
-    selectedXAxis.value = lcsp.xAxis;
-    selectedYAxis.value = lcsp.yAxis;
-
-    selectedXAxis.addEventListener("change", function (ev) {
-        let featureX = selectedXAxis.value;
-        let featureY = selectedYAxis.value;
-        let currentFile = selectedFile.value;
-        sendRequest("getLCSPData", currentFile, featureX, featureY);
-    });
-
-    selectedYAxis.addEventListener("change", function (ev) {
-        let featureX = selectedXAxis.value;
-        let featureY = selectedYAxis.value;
-        let currentFile = selectedFile.value;
-        sendRequest("getLCSPData", currentFile, featureX, featureY);
-    });
-}

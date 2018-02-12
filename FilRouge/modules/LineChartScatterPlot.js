@@ -11,7 +11,7 @@ class LineChartScatterPlot {
     constructor(id, data, cols, options = {}) {
         this.div = d3.select("#" + id);
         this.data = data;
-        let opts = fillWithDefault(options, defaultOptions, true);
+        let opts = fillWithDefault(options, defaultOptions, false);
         console.log(opts);
         this.opacity = opts.opacity;
         this.colorScatter = opts.colorScatter;
@@ -19,9 +19,12 @@ class LineChartScatterPlot {
         this.width = opts.width - this.margin.left - this.margin.right;
         this.height = opts.height - this.margin.top - this.margin.bottom;
 
+        this.step = 5;
+
         this.traits = cols;
         this.instanciateSupport();
         this.fillLCSP(this.data);
+        this.startRecordingKeyEvent();
     }
 
     get xAxis() {
@@ -30,6 +33,82 @@ class LineChartScatterPlot {
 
     get yAxis() {
         return this.traits[1];
+    }
+
+    startRecordingKeyEvent() {
+        document.addEventListener("keydown", (event) => {
+            const key = event.key;
+            if (event.shiftKey) {
+                if (key === "ArrowLeft") {
+                    let lims = d3.brushSelection(this.nodeBrushSc.node());
+                    if (lims) {
+                        let x_left = lims[0][0], x_right = lims[1][0];
+                        if (x_left > 0) {
+                            let newLeft = x_left - this.step > 0 ? x_left - this.step : 0;
+                            let newRight = x_right - (x_left - newLeft);
+                            this.nodeBrushSc.call(this.brushSc.move, [[newLeft, lims[0][1]], [newRight, lims[1][1]]])
+                        }
+                    }
+                } else if (key === "ArrowRight") {
+                    let lims = d3.brushSelection(this.nodeBrushSc.node());
+                    if (lims) {
+                        let x_left = lims[0][0], x_right = lims[1][0];
+                        if (x_right < this.width) {
+                            let newRight = x_right + this.step < this.width ? x_right + this.step : this.width;
+                            let newLeft = x_left + (newRight - x_right);
+
+                            this.nodeBrushSc.call(this.brushSc.move, [[newLeft, lims[0][1]], [newRight, lims[1][1]]])
+                        }
+                    }
+                } else if (key === "ArrowUp") {
+                    let lims = d3.brushSelection(this.nodeBrushSc.node());
+                    if (lims) {
+                        let y_left = lims[0][1], y_right = lims[1][1];
+                        if (y_left > 0) {
+                            let newUp = y_left - this.step > 0 ? y_left - this.step : 0;
+                            let newDown = y_right - (y_left - newUp);
+
+                            this.nodeBrushSc.call(this.brushSc.move, [[lims[0][0], newUp], [lims[1][0], newDown]])
+                        }
+                    }
+                } else if (key === "ArrowDown") {
+                    let lims = d3.brushSelection(this.nodeBrushSc.node());
+                    if (lims) {
+                        let y_left = lims[0][1], y_right = lims[1][1];
+                        if (y_right < this.height) {
+                            let newDown = y_right + this.step < this.height ? y_right + this.step : this.height;
+                            let newUp = y_left + (newDown - y_right);
+
+                            this.nodeBrushSc.call(this.brushSc.move, [[lims[0][0], newUp], [lims[1][0], newDown]])
+                        }
+                    }
+                }
+            } else {
+                if (key === "ArrowLeft") {
+                    let lims = d3.brushSelection(this.nodeBrush.node());
+                    if (lims) {
+                        let left = lims[0], right = lims[1];
+                        if (left > 0) {
+                            let newLeft = left - this.step > 0 ? left - this.step : 0;
+                            let newRight = right - (left - newLeft);
+
+                            this.nodeBrush.call(this.brush.move, [newLeft, newRight])
+                        }
+                    }
+                } else if (key === "ArrowRight") {
+                    let lims = d3.brushSelection(this.nodeBrush.node());
+                    if (lims) {
+                        let left = lims[0], right = lims[1];
+                        if (right < this.width) {
+                            let newRight = right + this.step < this.width ? right + this.step : this.width;
+                            let newLeft = left + (newRight - right);
+
+                            this.nodeBrush.call(this.brush.move, [newLeft, newRight])
+                        }
+                    }
+                }
+            }
+        })
     }
 
     instanciateSupport() {
@@ -50,9 +129,15 @@ class LineChartScatterPlot {
         let traits = this.traits;
         let circles;
 
+        let zoom = d3.zoom()
+            .scaleExtent([1, 64])
+            .translateExtent([[0, 0], [width, height]])
+            .extent([[0, 0], [width, height]])
+            .on("zoom", zoomed);
+
         // parse the date / time
         let parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
-        let formatTime = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+        let formatTime = d3.timeFormat("%H:%M:%S");
 
         for (let d of data) {
             d["date time"] = parseTime(d["date time"]);
@@ -67,15 +152,21 @@ class LineChartScatterPlot {
         let xSc = d3.scaleLinear().range([0, width]);
         let ySc = d3.scaleLinear().range([height, 0]);
 
-        let tooltip = this.div.append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+        this.x = x;
+        this.xSc = xSc;
+        this.ySc = ySc;
+
+        // let tooltip = this.div.append("div")
+        //     .attr("class", "tooltip")
+        //     .style("opacity", 0);
 
         let brush = d3.brushX()
             .extent([[0, 0], [width, height]])
             .on("brush end", brushed);
 
-        let brushSc = d3.brush()
+        this.brush = brush;
+
+        this.brushSc = d3.brush()
             .extent([[0, 0], [width, height]])
             .on("brush end", brushedSc);
 
@@ -118,8 +209,10 @@ class LineChartScatterPlot {
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
 
-        let tooltipLine = context.append('line');
+        // let tooltipLine = context.append('line');
 
+        svg.call(zoom).transition()
+            .duration(1500);
 
         // SCATTER PLOT
         // append the svg object to the body of the page
@@ -140,11 +233,10 @@ class LineChartScatterPlot {
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
 
-        let drawTooltip;
+        // let drawTooltip;
 
         // format the data
         data.forEach(function (d) {
-            // d["date time"] = parseTime(d["date time"]);
             d[traits[0]] = +d[traits[0]];
             d[traits[1]] = +d[traits[1]];
         });
@@ -200,25 +292,27 @@ class LineChartScatterPlot {
 
         // LINE CHART
         // Add the valueline path.
-        context.append("path")
+        let line1 = context.append("path")
             .data([data])
-            .attr("class", "line")
+            .attr("class", "line line1")
             .attr("clip-path", "url(#clip)")
             .style("stroke", "hotpink")
             .attr("d", valueline);
 
         // Add the valueline2 path.
-        context.append("path")
+        let line2 = context.append("path")
             .data([data])
-            .attr("class", "line")
+            .attr("class", "line line2")
             .attr("clip-path", "url(#clip)")
             .style("stroke", "lime")
             .attr("d", valueline2);
 
+        let xAxis = d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M:%S"))
+
         // Add the X Axis
-        context.append("g")
+        let svgXAxis = context.append("g")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+            .call(xAxis);
 
         // text label for the x axis
         context.append("text")
@@ -307,9 +401,6 @@ class LineChartScatterPlot {
             .attr("class", "secondLabel")
             .text(traits[1]);
 
-        contextSc.append("g")
-            .attr("class", "brush")
-            .call(brushSc);
 
         circles = contextSc.selectAll("circle")
             .data(data)
@@ -323,70 +414,72 @@ class LineChartScatterPlot {
             .attr("r", 4)
             .attr("fill", "orange");
 
+        this.nodeBrushSc = contextSc.append("g")
+            .attr("class", "brush brushSc")
+            .call(this.brushSc);
+
         // TOOLTIP FUNCTIONS
-        function removeTooltip() {
-            if (tooltip) tooltip.style('display', 'none');
-            if (tooltipLine) tooltipLine.attr('stroke', 'none').style("opacity", 0);
-        }
+        // function removeTooltip() {
+        //     if (tooltip) tooltip.style('display', 'none');
+        //     if (tooltipLine) tooltipLine.attr('stroke', 'none').style("opacity", 0);
+        // }
 
-        drawTooltip = function () {
-            // console.log(event);
-            let x_mouse = d3.mouse(tippi.node())[0];
-            // let x_mouse = event.offsetX;
-            let datetime = x.invert(d3.mouse(tippi.node())[0]);
-
-            let datetimeCompare = formatTime(datetime);
-
-            let minD = data[0];
-            let min = Math.abs(x(minD["date time"]) - x_mouse);
-            for (let d of data) {
-                let val = Math.abs(x(d["date time"]) - x_mouse);
-                if (val < min) {
-                    min = val;
-                    minD = d;
-                }
-            }
-
-            tooltipLine.attr('stroke', 'white')
-                .attr('x1', x(minD["date time"]))
-                .attr('x2', x(minD["date time"]))
-                .attr('y1', 0)
-                .attr('y2', height)
-                .style("opacity", 0.9);
-
-            tooltip.html(formatTime(datetime))
-                .style("opacity", .9)
-                .style("display", "block")
-                .style("left", (d3.event.pageX + 20) + "px")
-                .style("top", (d3.event.pageY - 20) + "px")
-                .append('div')
-                .html(traits[0] + " : " + minD[traits[0]])
-                .append('div')
-                .html(traits[1] + " : " + minD[traits[1]]);
-        };
+        // drawTooltip = function () {
+        //     // console.log(event);
+        //     let x_mouse = d3.mouse(tippi.node())[0];
+        //     // let x_mouse = event.offsetX;
+        //     let datetime = x.invert(d3.mouse(tippi.node())[0]);
+        //
+        //     let minD = data[0];
+        //     let min = Math.abs(x(minD["date time"]) - x_mouse);
+        //     for (let d of data) {
+        //         let val = Math.abs(x(d["date time"]) - x_mouse);
+        //         if (val < min) {
+        //             min = val;
+        //             minD = d;
+        //         }
+        //     }
+        //
+        //     tooltipLine.attr('stroke', 'white')
+        //         .attr('x1', x(minD["date time"]))
+        //         .attr('x2', x(minD["date time"]))
+        //         .attr('y1', 0)
+        //         .attr('y2', height)
+        //         .style("opacity", 0.9);
+        //
+        //     tooltip.html(formatTime(datetime))
+        //         .style("opacity", .9)
+        //         .style("display", "block")
+        //         .style("left", (d3.event.pageX + 20) + "px")
+        //         .style("top", (d3.event.pageY - 20) + "px")
+        //         .append('div')
+        //         .html(traits[0] + " : " + minD[traits[0]])
+        //         .append('div')
+        //         .html(traits[1] + " : " + minD[traits[1]]);
+        // };
 
         let tippi = context.append("g")
-            .on('mousemove', drawTooltip)
-            .on('mouseout', removeTooltip)
+            // .on('mousemove', drawTooltip)
+            // .on('mouseout', removeTooltip)
             .attr("class", "brush")
             .call(brush);
 
+        this.nodeBrush = tippi;
+
+        let br = document.querySelector(".brushSc");
+
         function colorSelectedPts(lims) {
             circles.attr("class", function (d) {
-                return (x(d["date time"]) >= lims[0] && x(d["date time"]) <= lims[1]) ? "colored" : "uncolored";
+                return (xt(d["date time"]) >= lims[0] && xt(d["date time"]) <= lims[1]) ? "colored" : "uncolored";
             });
 
-            document.querySelectorAll(".colored").forEach(function(el) {
+            // TODO optimiser avec des live collection ?
+            document.querySelectorAll(".colored").forEach(function (el) {
                 el.parentNode.appendChild(el);
             });
 
-            //     .attr("fill", function (d) {
-            //     if (x(d["date time"]) >= lims[0] && x(d["date time"]) <= lims[1]) {
-            //         return "orange";
-            //     } else {
-            //         return "gray";
-            //     }
-            // })
+
+            br.parentNode.appendChild(br);
         }
 
         function colorSelectedSegment(lims) {
@@ -403,8 +496,8 @@ class LineChartScatterPlot {
             });
 
             // Dates arrays. We suppose they are sorted
-            let s = brushed._groups[0].map(u => x(u.__data__["date time"]));
-            let all = circles._groups[0].map(u => x(u.__data__["date time"]));
+            let s = brushed._groups[0].map(u => xt(u.__data__["date time"]));
+            let all = circles._groups[0].map(u => xt(u.__data__["date time"]));
 
             // console.log(s.length, all.length);
             // console.log(all);
@@ -423,14 +516,22 @@ class LineChartScatterPlot {
                     j++;
                 } else {
                     if (debut !== -1) {
-                        intervals.push({deb: debut, fin: fin});
+                        if (fin > 0 || debut < width) {
+                            debut = debut > 0 ? debut : 0;
+                            fin = fin < width ? fin : width;
+                            intervals.push({deb: debut, fin: fin});
+                        }
                         debut = -1;
                         fin = -1;
                     }
                 }
             }
             if (debut !== -1) {
-                intervals.push({deb: debut, fin: fin});
+                if (fin > 0 || debut < width) {
+                    debut = debut > 0 ? debut : 0;
+                    fin = fin < width ? fin : width;
+                    intervals.push({deb: debut, fin: fin});
+                }
             }
 
             let rectTimes = contextBack.selectAll(".rectTime");
@@ -449,13 +550,38 @@ class LineChartScatterPlot {
         function brushed() {
             let selection = d3.event.selection || [0, width];
             colorSelectedPts(selection);
-            drawTooltip();
+            // drawTooltip();
         }
 
         function brushedSc() {
             let selection = d3.event.selection || [0, width];
             colorSelectedSegment(selection)
         }
+
+        let xt = x;
+        let that = this;
+
+        function zoomed() {
+            let t = d3.event.transform;
+            xt = t.rescaleX(x);
+            // console.log(t);
+            colorSelectedPts([0, width]);
+            // TODO - gérer les brushs en zooms
+            if (d3.brushSelection(that.nodeBrush.node())) {
+                that.nodeBrush.call(that.brush.move, null);
+            }
+            if (d3.brushSelection(that.nodeBrushSc.node())) {
+                that.nodeBrushSc.call(that.brushSc.move, null);
+            }
+            line1.attr("d", valueline.x(function (d) {
+                return xt(d["date time"]);
+            }));
+            line2.attr("d", valueline2.x(function (d) {
+                return xt(d["date time"]);
+            }));
+            svgXAxis.call(xAxis.scale(xt));
+        }
+
     }
 
 }

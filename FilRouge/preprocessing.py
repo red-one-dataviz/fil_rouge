@@ -1,24 +1,32 @@
 import pandas as pd
 
 df = pd.DataFrame()
+variables = {"files": [], "columns": []}
 
 
 def add_selected_files(data, args):
     global df
 
-    frames = [df, pd.read_json(data, orient='records')]
-    df = pd.concat(frames).drop_duplicates().reset_index(drop=True)
+    d = pd.read_json(data, orient='records')
+    if not (df.empty and d.empty):
+        frames = [df, d]
+        df = pd.concat(frames).drop_duplicates().reset_index(drop=True)
 
-    # print(df)
-    return "ok"
+        variables["files"] = list(df["idxFile"].unique())
+        variables["columns"] = list(df.columns.values)
+
+        return variables
+    else:
+        variables["files"] = []
+        variables["columns"] = []
 
 
-def get_pc_data(args):
-    return 0
+def get_pc_data(data, args):
+    return {"pcData": create_dict(df), "pcColumns": list(df.columns.values)}
 
 
 def get_lc_sp_data(data, args):
-    if args :
+    if args:
         feature_x = args[0]
         feature_y = args[1]
     else:

@@ -46,19 +46,18 @@
         </div>
     </div>
 
-    <div id="Paris" class="tabcontent">
-        <h3>Paris</h3>
-        <p>Paris is the capital of France.</p>
+    <div id="drawParallelCoordinatesPlot" class="tabcontent">
+        <div id="pcContainer"></div>
     </div>
 
     <div id="drawLineChartScatterPlot" class="tabcontent">
         <div id="mySidenav" class="sidenav">
             <a href="javascript:void(0)" class="closebtn" id="closeNav">&times;</a>
             <a href="#">Files</a>
-            <select id="selectedAddedFiles"></select>
+            <select id="selectFileLCSP"></select>
             <a href="#">Columns selection</a>
-            <select id="xAxis"></select>
-            <select id="yAxis"></select>
+            <select id="xAxisLCSP"></select>
+            <select id="yAxisLCSP"></select>
             <!--<a href="#">Clients</a>-->
             <!--<a href="#">Contact</a>-->
         </div>
@@ -70,8 +69,10 @@
         </div>
     </div>
     <script src="//d3js.org/d3.v4.min.js"></script>
+    <script src="render-queue.js"></script>
     <script type="module" src="modules/defaultOptions.js"></script>
     <script type="module" src="modules/LineChartScatterPlot.js"></script>
+    <script type="module" src="modules/ParallelCoords.js"></script>
     <script type="module" src="main.js"></script>
 </body>
 </html>

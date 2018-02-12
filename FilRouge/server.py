@@ -11,7 +11,7 @@ import json
 from preprocessing import *
 
 functions = {'addSelectedFiles': add_selected_files, 'getListFiles': get_list_files, 'getLCSPData': get_lc_sp_data,
-             'getColumnsLCSP': get_columns}
+             'getColumnsLCSP': get_columns, 'getPCData': get_pc_data}
 
 
 class MyServerProtocol(WebSocketServerProtocol):
