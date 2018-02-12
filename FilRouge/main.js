@@ -18,11 +18,11 @@ window.addEventListener("load", function () {
         console.log(res);
         if (res.fct === "addSelectedFiles") {
             updateUI(res.data);
-        }
-        // else if (res.fct === "getListFiles") {
-        //     console.log(res.data);
-        // }
-        else if (res.fct === "getLCSPData") {
+            updatePCUI(res.data);
+        } else if (res.fct === "deleteFile") {
+            updateUI(res.data);
+            updatePCUI(res.data);
+        } else if (res.fct === "getLCSPData") {
             fillLineChartScatterPlot(res.data.lcspData, res.data.lcspColumns);
         } else if (res.fct === "getColumnsLCSP") {
             createSelectAxis(res.data);
@@ -38,10 +38,24 @@ let state = {
 };
 let addedFilesList = document.getElementById("addedFiles");
 let selectedFilesList = document.getElementById("selectedFiles");
+let selectFilePC = document.getElementById("selectFilePC");
+let selectColumnsPC = document.getElementById("selectColumnsPC");
+let btnDisplayPC = document.getElementById("displayPC");
 let selectFileLCSP = document.getElementById("selectFileLCSP");
 let selectXAxisLCSP = document.getElementById("xAxisLCSP");
 let selectYAxisLCSP = document.getElementById("yAxisLCSP");
 
+// PARALLEL COORD
+function getSelectedValues(select) {
+    return [...select.options].filter(option => option.selected).map(option => option.value);
+}
+
+btnDisplayPC.addEventListener("click", function (ev) {
+    askPCData();
+});
+
+
+// LCSP
 selectFileLCSP.addEventListener("change", function (ev) {
     sendRequest("getLCSPData", this.value, selectXAxisLCSP.value, selectYAxisLCSP.value);
 });
@@ -60,6 +74,33 @@ selectYAxisLCSP.addEventListener("change", function (ev) {
     sendRequest("getLCSPData", currentFile, featureX, featureY);
 });
 
+function updatePCUI(data) {
+    console.log("PC UI");
+    state.files = data.files;
+    state.columns = data.columns;
+
+    selectFilePC.innerHTML = "";
+    selectColumnsPC.innerHTML = "";
+    for (let f of state.files) {
+        let option = document.createElement("option");
+        option.innerHTML = f;
+        option.value = f;
+        option.selected = true;
+        selectFilePC.appendChild(option);
+    }
+
+    for (let c of state.columns) {
+        if (c !== "idxFile") {
+            let option = document.createElement("option");
+            option.innerHTML = c;
+            option.value = c;
+            option.selected = true;
+
+            selectColumnsPC.appendChild(option);
+        }
+    }
+}
+
 function updateUI(data) {
     state.files = data.files;
     state.columns = data.columns;
@@ -76,7 +117,14 @@ function updateUI(data) {
     for (let f of state.files) {
         let li = document.createElement("li");
         li.className = "addedFile";
-        li.innerHTML = f;
+        li.innerHTML = `<span>${f} </span>`;
+        let del = document.createElement("div");
+        del.className = "deleteFile";
+        del.innerHTML = "X";
+        li.appendChild(del);
+        del.addEventListener("click", function () {
+           sendRequest("deleteFile", f);
+        });
         addedFilesList.appendChild(li);
 
         let option = document.createElement("option");
@@ -161,6 +209,7 @@ let listFilesIdx = [];
 function main() {
     setupTabs();
     setupListeners();
+    setUpPCOptions();
     setUpOptions();
 }
 
@@ -194,27 +243,36 @@ function setupListeners() {
     importFolder.addEventListener("change", function (ev) {
         let files = ev.path[0].files;
         fillFileList(files, table);
-
     });
 
     addSelectedFiles.addEventListener("click", function (ev) {
         readAndSendSelectedFiles(listSelectedFiles);
-        // sendRequest("addSelectedFiles", "cookie");
+    });
+}
 
+function setUpPCOptions() {
+    let sideNav = document.getElementById("openSideNavPC");
+    let closeNav = document.getElementById("closeNavPC");
+
+    sideNav.addEventListener("click", function (ev) {
+        document.getElementById("mySidenavPC").style.width = "250px";
+    });
+
+    closeNav.addEventListener("click", function (ev) {
+        document.getElementById("mySidenavPC").style.width = "0";
     });
 }
 
 function setUpOptions() {
-    let sideNav = document.getElementById("openSideNav");
-    let closeNav = document.getElementById("closeNav");
+    let sideNav = document.getElementById("openSideNavLCSP");
+    let closeNav = document.getElementById("closeNavLCSP");
 
     sideNav.addEventListener("click", function (ev) {
-        document.getElementById("mySidenav").style.width = "250px";
-        // document.getElementById("lscpContainer").style.marginLeft = "250px";
+        document.getElementById("mySidenavLCSP").style.width = "250px";
     });
 
     closeNav.addEventListener("click", function (ev) {
-        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("mySidenavLCSP").style.width = "0";
     });
 }
 
@@ -307,7 +365,10 @@ function fillFileList(files, table) {
 
 // ************************* LINE CHART + SCATTER PLOT *************************
 function askPCData() {
-    sendRequest("getPCData");
+    let selectedFiles = getSelectedValues(selectFilePC);
+    let selectedColumns = getSelectedValues(selectColumnsPC);
+
+    sendRequest("getPCData", selectedFiles, selectedColumns);
 }
 
 let pc;

@@ -89,7 +89,7 @@ class ParallelCoords {
             }
         };
 
-        const dimensions = [
+        const dimensionsAll = [
             {
                 key: "date time",
                 type: types["Date"],
@@ -189,6 +189,22 @@ class ParallelCoords {
             }
         ];
 
+        let dispKeys = [];
+        for (let k in data[0]) {
+            if (data[0].hasOwnProperty(k)) {
+                dispKeys.push(k);
+            }
+        }
+
+        let dimensions = [];
+        for (let dim of dimensionsAll) {
+            if (dispKeys.includes(dim.key)) {
+                dimensions.push(dim);
+            }
+        }
+
+        console.log(dimensions);
+
         this.container = this.div.append("div")
             .attr("class", "parcoords")
             .style("width", width + margin.left + margin.right + "px")
@@ -203,8 +219,8 @@ class ParallelCoords {
         this.canvas = this.container.append("canvas")
             .attr("width", width * devicePixelRatio)
             .attr("height", height * devicePixelRatio)
-            .style("width", 2*width + "px")
-            .style("height", 2*height + "px")
+            .style("width", 2 * width + "px")
+            .style("height", 2 * height + "px")
             .style("margin-top", margin.top + "px")
             .style("margin-left", margin.left + "px")
             .style("transform-origin", "0 0")

@@ -47,23 +47,30 @@
     </div>
 
     <div id="drawParallelCoordinatesPlot" class="tabcontent">
+        <div id="mySidenavPC" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" id="closeNavPC">&times;</a>
+            <a href="#">Files</a>
+            <select multiple id="selectFilePC"></select>
+            <a href="#">Columns selection</a>
+            <select multiple id="selectColumnsPC"></select>
+            <button id="displayPC">Display</button>
+        </div>
+
+        <button id="openSideNavPC">Options</button>
         <div id="pcContainer"></div>
     </div>
 
     <div id="drawLineChartScatterPlot" class="tabcontent">
-        <div id="mySidenav" class="sidenav">
-            <a href="javascript:void(0)" class="closebtn" id="closeNav">&times;</a>
+        <div id="mySidenavLCSP" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" id="closeNavLCSP">&times;</a>
             <a href="#">Files</a>
             <select id="selectFileLCSP"></select>
             <a href="#">Columns selection</a>
             <select id="xAxisLCSP"></select>
             <select id="yAxisLCSP"></select>
-            <!--<a href="#">Clients</a>-->
-            <!--<a href="#">Contact</a>-->
         </div>
 
-        <button id="openSideNav">Options</button>
-
+        <button id="openSideNavLCSP">Options</button>
 
         <div id="lscpContainer">
         </div>

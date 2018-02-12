@@ -7,22 +7,29 @@ variables = {"files": [], "columns": []}
 def add_selected_files(data, args):
     global df
 
-    d = pd.read_json(data, orient='records')
+    d = pd.read_json(data, orient='records', dtype=False)
     if not (df.empty and d.empty):
         frames = [df, d]
         df = pd.concat(frames).drop_duplicates().reset_index(drop=True)
 
         variables["files"] = list(df["idxFile"].unique())
         variables["columns"] = list(df.columns.values)
-
-        return variables
     else:
         variables["files"] = []
         variables["columns"] = []
 
+    return variables
+
+
 
 def get_pc_data(data, args):
-    return {"pcData": create_dict(df), "pcColumns": list(df.columns.values)}
+    if args:
+        columns = args[0]
+    else:
+        columns = df.columns.values
+
+    filtered = df.loc[df["idxFile"].isin(data)][columns]
+    return {"pcData": create_dict(filtered), "pcColumns": list(columns)}
 
 
 def get_lc_sp_data(data, args):
@@ -42,6 +49,20 @@ def get_list_files(data, args):
 
 def get_columns(data, args):
     return list(df.columns.values)
+
+
+def delete_file(data, args):
+    global df
+    df = df.loc[df["idxFile"] != data]
+
+    if not df.empty:
+        variables["files"] = list(df["idxFile"].unique())
+        variables["columns"] = list(df.columns.values)
+    else:
+        variables["files"] = []
+        variables["columns"] = []
+
+    return variables
 
 
 def create_df(json_str):

@@ -55,6 +55,14 @@
     background-color: mediumaquamarine;
 }
 
+.deleteFile {
+    background-color: crimson;
+    height: 15px;
+    width: 15px;
+    font-size: 15px;
+    display: inline;
+}
+
 #container {
     display: grid;
     grid-template-columns: 50% auto;
@@ -282,6 +290,11 @@ div.tooltip {
     color: #818181;
     display: block;
     transition: 0.3s;
+    margin-left: 15px;
+    margin-bottom: 15px;
+}
+
+.sidenav button {
     margin-left: 15px;
     margin-bottom: 15px;
 }
