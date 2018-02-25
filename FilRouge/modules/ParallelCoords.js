@@ -38,6 +38,7 @@ class ParallelCoords {
     }
 
     instantiateSupport() {
+        let that = this;
         let devicePixelRatio = window.devicePixelRatio || 1;
         // let dimensions = this.dimensions;
         let width = this.width;
@@ -91,19 +92,19 @@ class ParallelCoords {
 
         const dimensionsAll = [
             {
-                key: "date time",
+                key: "date_time",
                 type: types["Date"],
                 axis: d3.axisLeft().tickFormat(function (d) {
                     return formatTime(d);
                 })
             },
             {
-                key: "flight time",
+                key: "flight_time",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "take off switch",
+                key: "take_off_switch",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
@@ -113,17 +114,17 @@ class ParallelCoords {
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "static pressure",
+                key: "static_pressure",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "ground speed",
+                key: "ground_speed",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "ind. air speed",
+                key: "ind_air_speed",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
@@ -133,12 +134,12 @@ class ParallelCoords {
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "n1 1",
+                key: "n1_1",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "n2 1",
+                key: "n2_1",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
@@ -148,32 +149,32 @@ class ParallelCoords {
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "torque 1",
+                key: "torque_1",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "tot 1",
+                key: "tot_1",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "oil pressure 1",
+                key: "oil_pressure_1",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "oil temp. 1",
+                key: "oil_temp_1",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "fuel flow",
+                key: "fuel_flow",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
             {
-                key: "fuel vol.",
+                key: "fuel_vol",
                 type: types["Number"],
                 scale: d3.scaleLinear().range([innerHeight, 0])
             },
@@ -288,7 +289,7 @@ class ParallelCoords {
             dim.scale.domain(dim.domain);
         });
 
-        let render = renderQueue(draw).rate(25);
+        let render = renderQueue(draw).rate(150);
         ctx.clearRect(0, 0, width, height);
         // ctx.globalAlpha = 1;
         ctx.globalAlpha = d3.min([0.85 / Math.pow(data.length, 0.3), 1]);
@@ -396,6 +397,16 @@ class ParallelCoords {
                         extent: d3.brushSelection(this)
                     });
                 });
+
+            let selection = {};
+            for (let sel of actives) {
+                selection[sel.dimension.key] = [
+                    sel.dimension.scale.invert(sel.extent[0]),
+                    sel.dimension.scale.invert(sel.extent[1])
+                ];
+            }
+
+            that.selection = selection;
 
             let selected = data.filter(function (d) {
                 if (actives.every(function (active) {

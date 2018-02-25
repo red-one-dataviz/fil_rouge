@@ -11,7 +11,13 @@
         <button id="drawParallelCoordinatesTab" class="tablinks">Parallel Coordinates</button>
         <button id="drawLineChartScatterPlotTab" class="tablinks">LineChart & ScatterPlot</button>
     </div>
-
+    <div id="loaderDiv">
+        <div class="Aligner-item Aligner-item--top">
+            <button id="hideLoading">Hide Loading</button>
+        </div>
+        <div class="Aligner-item loader"></div>
+        <div class="Aligner-item Aligner-item--bottom"></div>
+    </div>
     <!--ADD FILES-->
     <div id="addFiles" class="tabcontent">
         <div id="container">
@@ -57,6 +63,8 @@
         </div>
 
         <button id="openSideNavPC">Options</button>
+        <button id="drawFromSelection">Draw from selection</button>
+        <button id="resetSelection">Reset selection</button>
         <div id="pcContainer"></div>
     </div>
 
@@ -75,7 +83,8 @@
         <div id="lscpContainer">
         </div>
     </div>
-    <script src="//d3js.org/d3.v4.min.js"></script>
+    <!--<script src="//d3js.org/d3.v4.min.js"></script>-->
+    <script src="d3.min.js"></script>
     <script src="render-queue.js"></script>
     <script type="module" src="modules/defaultOptions.js"></script>
     <script type="module" src="modules/LineChartScatterPlot.js"></script>

@@ -140,7 +140,7 @@ class LineChartScatterPlot {
         let formatTime = d3.timeFormat("%H:%M:%S");
 
         for (let d of data) {
-            d["date time"] = parseTime(d["date time"]);
+            d["date_time"] = parseTime(d["date_time"]);
         }
 
         // set the ranges
@@ -245,7 +245,7 @@ class LineChartScatterPlot {
         // LINE CHART
         // Scale the range of the data
         x.domain(d3.extent(data, function (d) {
-            return d["date time"];
+            return d["date_time"];
         }));
 
         yLeft.domain([d3.min(data, function (d) {
@@ -262,7 +262,7 @@ class LineChartScatterPlot {
         // define the 1st line
         let valueline = d3.line()
             .x(function (d) {
-                return x(d["date time"]);
+                return x(d["date_time"]);
             })
             .y(function (d) {
                 return yLeft(d[traits[0]]);
@@ -271,7 +271,7 @@ class LineChartScatterPlot {
         // define the 2nd line
         let valueline2 = d3.line()
             .x(function (d) {
-                return x(d["date time"]);
+                return x(d["date_time"]);
             })
             .y(function (d) {
                 return yRight(d[traits[1]]);
@@ -320,7 +320,7 @@ class LineChartScatterPlot {
                 "translate(" + (width / 2) + " ," +
                 (height + margin.top + 20) + ")")
             .style("text-anchor", "middle")
-            .text("date time");
+            .text("date_time");
 
         // Add the Y Axis
         context.append("g")
@@ -431,9 +431,9 @@ class LineChartScatterPlot {
         //     let datetime = x.invert(d3.mouse(tippi.node())[0]);
         //
         //     let minD = data[0];
-        //     let min = Math.abs(x(minD["date time"]) - x_mouse);
+        //     let min = Math.abs(x(minD["date_time"]) - x_mouse);
         //     for (let d of data) {
-        //         let val = Math.abs(x(d["date time"]) - x_mouse);
+        //         let val = Math.abs(x(d["date_time"]) - x_mouse);
         //         if (val < min) {
         //             min = val;
         //             minD = d;
@@ -441,8 +441,8 @@ class LineChartScatterPlot {
         //     }
         //
         //     tooltipLine.attr('stroke', 'white')
-        //         .attr('x1', x(minD["date time"]))
-        //         .attr('x2', x(minD["date time"]))
+        //         .attr('x1', x(minD["date_time"]))
+        //         .attr('x2', x(minD["date_time"]))
         //         .attr('y1', 0)
         //         .attr('y2', height)
         //         .style("opacity", 0.9);
@@ -470,7 +470,7 @@ class LineChartScatterPlot {
 
         function colorSelectedPts(lims) {
             circles.attr("class", function (d) {
-                return (xt(d["date time"]) >= lims[0] && xt(d["date time"]) <= lims[1]) ? "colored" : "uncolored";
+                return (xt(d["date_time"]) >= lims[0] && xt(d["date_time"]) <= lims[1]) ? "colored" : "uncolored";
             });
 
             // TODO optimiser avec des live collection ?
@@ -496,8 +496,8 @@ class LineChartScatterPlot {
             });
 
             // Dates arrays. We suppose they are sorted
-            let s = brushed._groups[0].map(u => xt(u.__data__["date time"]));
-            let all = circles._groups[0].map(u => xt(u.__data__["date time"]));
+            let s = brushed._groups[0].map(u => xt(u.__data__["date_time"]));
+            let all = circles._groups[0].map(u => xt(u.__data__["date_time"]));
 
             // console.log(s.length, all.length);
             // console.log(all);
@@ -574,10 +574,10 @@ class LineChartScatterPlot {
                 that.nodeBrushSc.call(that.brushSc.move, null);
             }
             line1.attr("d", valueline.x(function (d) {
-                return xt(d["date time"]);
+                return xt(d["date_time"]);
             }));
             line2.attr("d", valueline2.x(function (d) {
-                return xt(d["date time"]);
+                return xt(d["date_time"]);
             }));
             svgXAxis.call(xAxis.scale(xt));
         }

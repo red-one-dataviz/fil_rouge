@@ -7,6 +7,47 @@
     height: 750px;
 }
 
+/* Loader */
+#loaderDiv {
+    position: absolute;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.Aligner-item {
+    max-width: 50%;
+}
+
+.Aligner-item--top {
+    align-self: flex-start;
+}
+
+.Aligner-item--bottom {
+    align-self: flex-end;
+}
+
+.loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid crimson;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Style the buttons that are used to open the tab content */
 .tab button {
     display: block;
@@ -77,6 +118,7 @@
     /*background-color: #dddddd;*/
     background-color: white;
     height: inherit;
+    overflow:auto;
 }
 
 #rightPane {
@@ -85,7 +127,7 @@
     /*background-color: #BDBDBD;*/
     background-color: white;
     height: inherit;
-
+    overflow:auto;
 }
 
 .fixedDiv {

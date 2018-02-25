@@ -14,6 +14,7 @@ window.addEventListener("load", function () {
     mySocket.onopen = () => sendRequest("addSelectedFiles", JSON.stringify([]));
     // Ecoute pour les messages arrivant
     mySocket.onmessage = function (event) {
+        hideLoading();
         let res = JSON.parse(event.data);
         console.log(res);
         if (res.fct === "addSelectedFiles") {
@@ -31,6 +32,19 @@ window.addEventListener("load", function () {
         }
     };
 });
+
+let loadingDiv = document.getElementById("loaderDiv");
+let btnHideLoading = document.getElementById("hideLoading");
+
+function showLoading() {
+    loadingDiv.style.display = "flex";
+}
+
+function hideLoading() {
+    loadingDiv.style.display = "none";
+}
+
+btnHideLoading.addEventListener("click", hideLoading);
 
 let state = {
     files: [],
@@ -142,7 +156,7 @@ function updateUI(data) {
     }
 
     for (let c of state.columns) {
-        if (c !== "date time" && c !== "idxFile") {
+        if (c !== "date_time" && c !== "idxFile") {
             let optionX = document.createElement("option");
             optionX.innerHTML = c;
             optionX.value = c;
@@ -165,6 +179,7 @@ function updateUI(data) {
 }
 
 function sendRequest(name, data, ...args) {
+    showLoading();
     let msg = {
         "fct": name,
         "data": data || [],
@@ -288,7 +303,13 @@ function readAndSendSelectedFiles(files) {
         reader.onload = (function (theFile) {
             return function (e) {
                 d3.csv(e.target.result, function (error, data) {
+                    let power = 0;
                     for (let d of data) {
+                        if(d["power"]) {
+                            power = d["power"];
+                        } else {
+                            d["power"] = power;
+                        }
                         d["idxFile"] = theFile.name;
                     }
                     listFilesIdx.push(theFile.name);
@@ -363,12 +384,28 @@ function fillFileList(files, table) {
 }
 
 
-// ************************* LINE CHART + SCATTER PLOT *************************
+// ************************* PARALLEL COORDINATES *************************
+let drawFromSelection = document.getElementById("drawFromSelection");
+let resetSelection = document.getElementById("resetSelection");
+
+resetSelection.addEventListener("click", askPCData);
+
+drawFromSelection.addEventListener("click", function() {
+    let selectedFiles = getSelectedValues(selectFilePC);
+    let selectedColumns = getSelectedValues(selectColumnsPC);
+
+    let selection = pc && pc.selection ? pc.selection : {};
+
+    console.log(pc);
+
+    sendRequest("getPCData", selectedFiles, selectedColumns, selection);
+});
+
 function askPCData() {
     let selectedFiles = getSelectedValues(selectFilePC);
     let selectedColumns = getSelectedValues(selectColumnsPC);
 
-    sendRequest("getPCData", selectedFiles, selectedColumns);
+    sendRequest("getPCData", selectedFiles, selectedColumns, {});
 }
 
 let pc;

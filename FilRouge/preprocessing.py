@@ -1,19 +1,50 @@
 import pandas as pd
+import numpy as np
 
 df = pd.DataFrame()
 variables = {"files": [], "columns": []}
 
+dtypes = {
+    "altitude": np.float64,
+    "date time": object,
+    "flight time": np.float64,
+    "fuel flow": np.float64,
+    "fuel vol.": np.float64,
+    "ground speed": np.float64,
+    "idxFile": np.float64,
+    "ind. air speed": np.float64,
+    "n1 1": np.float64,
+    "n2 1": np.float64,
+    "nr": np.float64,
+    "oat": np.float64,
+    "oil pressure 1": np.float64,
+    "oil temp. 1": np.float64,
+    "phase_no": np.float64,
+    "power": np.float64,
+    "static pressure": np.float64,
+    "take off switch": np.float64,
+    "torque 1": np.float64,
+    "tot 1": np.float64,
+}
 
 def add_selected_files(data, args):
     global df
 
-    d = pd.read_json(data, orient='records', dtype=False)
+    d = pd.read_json(data, orient='records', dtype=dtypes)
     if not (df.empty and d.empty):
+        # marche pas
+        # d.replace('', np.nan, regex=True)
+        # d.fillna(method='ffill')
+        # print(d["power"])
+        cols = d.columns
+        cols = cols.map(lambda x: x.replace(' ', '_').replace('.', '') if isinstance(x, (bytes, str)) else x)
+        d.columns = cols
         frames = [df, d]
         df = pd.concat(frames).drop_duplicates().reset_index(drop=True)
 
         variables["files"] = list(df["idxFile"].unique())
         variables["columns"] = list(df.columns.values)
+        print(df.dtypes)
     else:
         variables["files"] = []
         variables["columns"] = []
@@ -25,11 +56,34 @@ def add_selected_files(data, args):
 def get_pc_data(data, args):
     if args:
         columns = args[0]
+        lims = args[1]
     else:
         columns = df.columns.values
 
-    filtered = df.loc[df["idxFile"].isin(data)][columns]
-    return {"pcData": create_dict(filtered), "pcColumns": list(columns)}
+    filtered = df.loc[df["idxFile"].isin(data)]
+    if lims:
+        query_string = ''
+        for key, value in lims.items():
+            print(key, value)
+            # TODO if pas beau
+            if not query_string:
+                query_string += key +' < ' + str(value[0]) + ' and ' + key +' >= ' + str(value[1])
+            else:
+                query_string += ' and ' + key +' < ' + str(value[0]) + ' and ' + key +' >= ' + str(value[1])
+        # limited = df.loc[(df[list(lims)] == pd.Series(lims)).all(axis=1)]
+
+        # print(query_string)
+
+        limited = df.query(query_string)
+        #limited = df.loc[df["phase_no"] == '1']
+
+        print
+
+    else:
+        print("no lims")
+        limited = filtered
+
+    return {"pcData": create_dict(limited[columns]), "pcColumns": list(columns)}
 
 
 def get_lc_sp_data(data, args):
@@ -38,8 +92,8 @@ def get_lc_sp_data(data, args):
         feature_y = args[1]
     else:
         feature_x = "altitude"
-        feature_y = "fuel flow"
-    return {"lcspData": create_dict(df[df["idxFile"] == data][["date time", feature_x, feature_y]]),
+        feature_y = "fuel_flow"
+    return {"lcspData": create_dict(df[df["idxFile"] == data][["date_time", feature_x, feature_y]]),
             "lcspColumns": [feature_x, feature_y]}
 
 
